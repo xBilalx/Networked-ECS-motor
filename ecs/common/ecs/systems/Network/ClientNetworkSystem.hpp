@@ -14,7 +14,7 @@ class ClientNetworkSystem {
             return true;
         }
 
-        void dataToServer(EntityManager& em, InputSystem& inputSystem, float dt) {
+        void dataToServer(Scene& em, InputSystem& inputSystem, float dt) {
             if (coolDown != 0) {
                 currentTime += dt;
                 if (currentTime >= coolDown) {
@@ -30,8 +30,8 @@ class ClientNetworkSystem {
                 for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
                     std::cout << "c'est l'heure !\n";
                     std::string buffer;
-                    InputComponent* input = em.getComponentTest<InputComponent>(it->first);
-                    PositionComponent* position = em.getComponentTest<PositionComponent>(it->first);
+                    InputComponent* input = em.getComponent<InputComponent>(it->first);
+                    PositionComponent* position = em.getComponent<PositionComponent>(it->first);
                     if (!position) {
                         std::cout << "-------------------------------------------------Il ya pas pos !\n";
                     }
@@ -53,7 +53,7 @@ class ClientNetworkSystem {
         }
 
         // Process of deserialization and Creation/Modification of entity/component
-        void dataFromServer(EntityManager& em) {
+        void dataFromServer(Scene& em) {
             std::vector<Packet> packets = networkManager.receiveMessages(false);
             for (Packet packet : packets) {
                 Serializer::MessageType messageType = Serializer::MessageType::NOTHING;
@@ -69,11 +69,11 @@ class ClientNetworkSystem {
                     if (messageType == Serializer::MessageType::ENTITY) {
                         uint64_t entityNbr = static_cast<uint64_t>(Serializer::deserialize<uint64_t>(packet.data));
                         std::cout << "entity -> " << entityNbr << std::endl;
-                        if (em.checkIfEntityExistTest(entityNbr)) {
+                        if (em.checkIfEntityExist(entityNbr)) {
                             // Créer l'entité avec son ID
                             // std::cout << "entité trouvé\n";
                         } else {
-                            em.createEntityTestWithId(entityNbr);
+                            em.createEntityWithId(entityNbr);
                             std::cout << "entité pas trouvé, entité crée du coup\n";
                             // continue;
                         }
@@ -88,10 +88,10 @@ class ClientNetworkSystem {
                                 unsigned int modeWidth = static_cast<unsigned int>(Serializer::deserialize<unsigned int>(packet.data));
                                 unsigned int modeHeight = static_cast<unsigned int>(Serializer::deserialize<unsigned int>(packet.data));
                                 std::cout << "modeWidth -> " << modeWidth << " modeHeight -> " << modeHeight << std::endl;
-                                WindowComponent* win = em.getComponentTest<WindowComponent>(entityNbr);
+                                WindowComponent* win = em.getComponent<WindowComponent>(entityNbr);
                                 if (!win) {
                                     std::cout << "ezfbuizibffieuzbfuizebiufbuifbiuezbfiuezbiufbzuief\n";
-                                    em.addComponentTest<WindowComponent>(entityNbr, modeWidth, modeHeight);
+                                    em.addComponent<WindowComponent>(entityNbr, modeWidth, modeHeight);
                                 }  
                             }
 
@@ -100,9 +100,9 @@ class ClientNetworkSystem {
                                 std::cout << "RENDER\n";
                                 std::string pathImg = Serializer::deserializeString(packet.data);
                                 std::cout << "Pathimg -> " << pathImg << std::endl;
-                                RenderComponent* render = em.getComponentTest<RenderComponent>(entityNbr);
+                                RenderComponent* render = em.getComponent<RenderComponent>(entityNbr);
                                 if (!render) {
-                                    em.addComponentTest<RenderComponent>(entityNbr, pathImg, true);
+                                    em.addComponent<RenderComponent>(entityNbr, pathImg, true);
                                 } else {
                                     std::cout << "Il faut modifier le render\n";
                                 }
@@ -111,9 +111,9 @@ class ClientNetworkSystem {
                             // Component INPUT
                             if (messageType == Serializer::MessageType::INPUT) {
                                 std::cout << "INPUT\n";
-                                InputComponent* render = em.getComponentTest<InputComponent>(entityNbr);
+                                InputComponent* render = em.getComponent<InputComponent>(entityNbr);
                                 if (!render) {
-                                    em.addComponentTest<InputComponent>(entityNbr);
+                                    em.addComponent<InputComponent>(entityNbr);
                                 } else {
                                     std::cout << "Il faut modifier le render\n";
                                 }
@@ -125,9 +125,9 @@ class ClientNetworkSystem {
                                 float x = static_cast<float>(Serializer::deserialize<float>(packet.data));
                                 float y = static_cast<float>(Serializer::deserialize<float>(packet.data));
                                 std::cout << "x -> " << x << " y -> " << y << std::endl;
-                                PositionComponent* input = em.getComponentTest<PositionComponent>(entityNbr);
+                                PositionComponent* input = em.getComponent<PositionComponent>(entityNbr);
                                 if (!input) {
-                                    em.addComponentTest<PositionComponent>(entityNbr, x, y);
+                                    em.addComponent<PositionComponent>(entityNbr, x, y);
                                 } else {
                                     input->position.x = x;
                                     input->position.y = y;

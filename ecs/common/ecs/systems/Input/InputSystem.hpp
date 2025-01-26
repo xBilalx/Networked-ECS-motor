@@ -6,11 +6,11 @@
 class InputSystem {
 public:
 
-    void update(EntityManager& entityManager, sf::RenderWindow& win) {
+    void update(Scene& scene, sf::RenderWindow& win) {
         if (win.isOpen() && win.hasFocus()) {
-            for (auto it = entityManager.entities1.begin(); it != entityManager.entities1.end(); it++) {
-                InputComponent* input = entityManager.getComponentTest<InputComponent>(it->first);
-                BindClientComponent* bind = entityManager.getComponentTest<BindClientComponent>(it->first);
+            for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+                InputComponent* input = scene.getComponent<InputComponent>(it->first);
+                BindClientComponent* bind = scene.getComponent<BindClientComponent>(it->first);
                 if (input) {
                     input->moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
                     input->moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
@@ -24,11 +24,11 @@ public:
             }
         }
     }
-    void updateForServer(EntityManager& entityManager, sf::RenderWindow& win) {
+    void updateForServer(Scene& scene, sf::RenderWindow& win) {
         if (win.isOpen() && win.hasFocus()) {
-            for (auto it = entityManager.entities1.begin(); it != entityManager.entities1.end(); it++) {
-                InputComponent* input = entityManager.getComponentTest<InputComponent>(it->first);
-                BindClientComponent* bind = entityManager.getComponentTest<BindClientComponent>(it->first);
+            for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+                InputComponent* input = scene.getComponent<InputComponent>(it->first);
+                BindClientComponent* bind = scene.getComponent<BindClientComponent>(it->first);
                 if (input && !bind) {
                     input->moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
                     input->moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);

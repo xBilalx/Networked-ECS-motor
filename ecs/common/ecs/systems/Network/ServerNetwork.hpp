@@ -19,7 +19,7 @@ class ServerNetworkSystem {
             return true;
         }
 
-        void dataToClients(EntityManager& em, float dt) {
+        void dataToClients(Scene& em, float dt) {
             if (coolDown != 0) {
                 currentTime += dt;
                 if (currentTime >= coolDown) {
@@ -32,16 +32,16 @@ class ServerNetworkSystem {
             
             int next = false;
             for (auto itBind = em.entities1.begin(); itBind != em.entities1.end(); itBind++) {
-                BindClientComponent *currentbindClient = em.getComponentTest<BindClientComponent>(itBind->first);
+                BindClientComponent *currentbindClient = em.getComponent<BindClientComponent>(itBind->first);
                 if (currentbindClient && currentbindClient->connected) {
                     // std::cout << "ta le droit frérot\n";
                     for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
                         std::string buffer;
                         // auto* window = entityy->getComponent<WindowComponent>();
-                        InputComponent* input = em.getComponentTest<InputComponent>(it->first);
-                        RenderComponent* render = em.getComponentTest<RenderComponent>(it->first);
-                        PositionComponent* position = em.getComponentTest<PositionComponent>(it->first);
-                        BindClientComponent *bindClient = em.getComponentTest<BindClientComponent>(it->first);
+                        InputComponent* input = em.getComponent<InputComponent>(it->first);
+                        RenderComponent* render = em.getComponent<RenderComponent>(it->first);
+                        PositionComponent* position = em.getComponent<PositionComponent>(it->first);
+                        BindClientComponent *bindClient = em.getComponent<BindClientComponent>(it->first);
 
                         Serializer::serialize(buffer, Serializer::MessageType::ENTITY);
                         Serializer::serialize(buffer, (uint64_t)it->first);
@@ -81,7 +81,7 @@ class ServerNetworkSystem {
             }
         }
 
-        void dataFromClients(EntityManager& em) {
+        void dataFromClients(Scene& em) {
             std::vector<Packet> packets = networkManager.receiveMessages(true);
             for (Packet packet : packets) {
                 Serializer::MessageType messageType = Serializer::MessageType::NOTHING;
@@ -91,7 +91,7 @@ class ServerNetworkSystem {
                         break;
                     if (messageType == Serializer::MessageType::CONNECT) {
                         for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
-                            BindClientComponent *bindClient = em.getComponentTest<BindClientComponent>(it->first);
+                            BindClientComponent *bindClient = em.getComponent<BindClientComponent>(it->first);
                             if (bindClient && !bindClient->connected) {
                                 bindClient->ipClient = packet.senderIp;
                                 bindClient->portClient = packet.senderPort;
@@ -110,13 +110,13 @@ class ServerNetworkSystem {
                     }
                     if (messageType == Serializer::MessageType::ENTITY) {
                         uint64_t entityNbr = static_cast<uint64_t>(Serializer::deserialize<uint64_t>(packet.data));
-                        BindClientComponent* bindClient = em.getComponentTest<BindClientComponent>(entityNbr);
+                        BindClientComponent* bindClient = em.getComponent<BindClientComponent>(entityNbr);
                         messageType = static_cast<Serializer::MessageType>(Serializer::deserialize<uint8_t>(packet.data));
                         if (messageType == Serializer::MessageType::POSITION)
                             if (bindClient->ipClient == packet.senderIp && bindClient->portClient == packet.senderPort) {
                                 float x = static_cast<float>(Serializer::deserialize<float>(packet.data));
                                 float y = static_cast<float>(Serializer::deserialize<float>(packet.data));
-                                PositionComponent* pos = em.getComponentTest<PositionComponent>(entityNbr);
+                                PositionComponent* pos = em.getComponent<PositionComponent>(entityNbr);
                                 // std::cout << "xe -> " << x << " y -> " << y << std::endl;
                                 if (pos) {
                                     pos->position.x = x;

@@ -13,7 +13,7 @@ class RenderSystem
             window.create(sf::VideoMode(modeWidth, modeHeight), windowName);
             window.setFramerateLimit(120);
         }
-        bool createWindowWithEntity(EntityManager& em) {
+        bool createWindowWithEntity(Scene& em) {
             for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
                 std::cout << "_________-->"<< it->first << " a " << it->second.size()  << " composants" << std::endl;
                 auto win = it->second.find(std::type_index(typeid(WindowComponent)));
@@ -31,10 +31,10 @@ class RenderSystem
         sf::RenderWindow& getWindow() {
             return window;
         };
-        void update(EntityManager& entityManager) {
-            for (auto it = entityManager.entities1.begin(); it != entityManager.entities1.end(); it++) {
-                PositionComponent* position = entityManager.getComponentTest<PositionComponent>(it->first);
-                RenderComponent* render = entityManager.getComponentTest<RenderComponent>(it->first);
+        void update(Scene& scene) {
+            for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+                PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
+                RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
                 
                 if (position && render) {
                     render->sprite.setPosition(position->position.x, position->position.y);
