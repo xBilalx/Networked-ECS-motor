@@ -65,6 +65,10 @@ class ClientNetworkSystem {
                         // ECS connection good
                         std::cout << "Connected to server successful" << std::endl;
                     }
+                    if (messageType == Serializer::MessageType::CLEAR) {
+                        std::cout << "FLAG CLEAR RECU\n";
+                        em.clear();
+                    }
                     // Creation of modification of entity
                     if (messageType == Serializer::MessageType::ENTITY) {
                         uint64_t entityNbr = static_cast<uint64_t>(Serializer::deserialize<uint64_t>(packet.data));

@@ -18,6 +18,17 @@ class ServerNetworkSystem {
             networkManager = NetworkManager();
             return true;
         }
+        void sendClearScene(Scene& em, float dt) {
+            for (auto itBind = em.entities1.begin(); itBind != em.entities1.end(); itBind++) {
+                BindClientComponent *currentbindClient = em.getComponent<BindClientComponent>(itBind->first);
+                if (currentbindClient && currentbindClient->connected) {
+                    std::string buffer;
+                    Serializer::serialize(buffer, Serializer::MessageType::CLEAR);
+                    Serializer::serialize(buffer, Serializer::MessageType::END);
+                    networkManager.sendTo(buffer, currentbindClient->ipClient, currentbindClient->portClient);
+                }
+            }
+        }
 
         void dataToClients(Scene& em, float dt) {
             if (coolDown != 0) {
@@ -113,12 +124,14 @@ class ServerNetworkSystem {
                         BindClientComponent* bindClient = em.getComponent<BindClientComponent>(entityNbr);
                         messageType = static_cast<Serializer::MessageType>(Serializer::deserialize<uint8_t>(packet.data));
                         if (messageType == Serializer::MessageType::POSITION)
-                            if (bindClient->ipClient == packet.senderIp && bindClient->portClient == packet.senderPort) {
+                            if (bindClient && bindClient->ipClient == packet.senderIp && bindClient->portClient == packet.senderPort) {
                                 float x = static_cast<float>(Serializer::deserialize<float>(packet.data));
                                 float y = static_cast<float>(Serializer::deserialize<float>(packet.data));
                                 PositionComponent* pos = em.getComponent<PositionComponent>(entityNbr);
                                 // std::cout << "xe -> " << x << " y -> " << y << std::endl;
+                                    std::cout << "ee\n";
                                 if (pos) {
+                                                                 std::cout << "eezeze\n";
                                     pos->position.x = x;
                                     pos->position.y = y;
                                 }
