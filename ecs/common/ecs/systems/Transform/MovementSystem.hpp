@@ -3,10 +3,10 @@
 
 class MovementSystem {
 public:
-    void update(EntityManager& entityManager) {
-        for (auto it = entityManager.entities1.begin(); it != entityManager.entities1.end(); it++) {
-            InputComponent* input = entityManager.getComponentTest<InputComponent>(it->first);
-            PositionComponent* position = entityManager.getComponentTest<PositionComponent>(it->first);
+    void update(Scene& scene) {
+        for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+            InputComponent* input = scene.getComponent<InputComponent>(it->first);
+            PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
 
             if (input && position) {
                 if (input->moveLeft)
