@@ -11,48 +11,13 @@
 #include <bits/stdc++.h>
 
 
-// Faire une scene de 10secondes local
-// Puis faire une scene qui communique avec le serveur
 int main() {
     sceneManager SceneManager(false);
-    SceneManager.addScene("test", [](Scene& scene) {
-        // Mettre la futur logique pour savoir si c'est une scene local ou distance à synchro
+    SceneManager.addScene("sync_test", [](Scene& scene) {
+        scene.isNetworked = true;
+        scene.serverAdress = "127.0.0.1";
+        scene.port = 8090;
     });
-    SceneManager.addScene("bulle", [](Scene& scene) {
-        // Mettre la futur logique pour savoir si c'est une scene local ou distance à synchro
-    });
-    SceneManager.runScene("niveau 1");
+    SceneManager.setCurrentScene("sync_test");
+    SceneManager.run();
 }
-
-// int main(void)
-// {
-//     scene scene;
-//     ClientNetworkSystem clientNetworkSystem("127.0.0.1", 8089, 0.0083);
-
-
-//     sceneManager
-//     bool chechk = false;
-
-//     RenderSystem renderSystem;
-//     InputSystem inputSystem;
-//     MovementSystem movementSystem;
-
-//     renderSystem.createWindow(1920, 1080, "Client");
-//     sf::RenderWindow& win = renderSystem.getWindow();
-//     sf::Clock clock;
-
-//     while(win.isOpen()) {
-//         float dt = clock.restart().asSeconds();
-//         if (!chechk) {
-//             clientNetworkSystem.test();
-//             chechk = true;
-//         }
-//         clientNetworkSystem.dataToServer(scene, inputSystem, dt);
-//         clientNetworkSystem.dataFromServer(scene);
-//         win.clear();
-//         renderSystem.update(scene);
-//         win.display();
-//         inputSystem.update(scene, win);
-//         movementSystem.update(scene);
-//     }
-// }

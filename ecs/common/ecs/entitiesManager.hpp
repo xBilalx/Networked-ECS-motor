@@ -47,8 +47,18 @@ public:
         auto itEnt = entities1.find(id);
         return (itEnt != entities1.end());
     }
-
+    void clear() {
+        entities1.clear();
+        entitiesNbr = -1;
+        std::cout << "Scene cleared\n";
+    }
     std::unordered_map<std::size_t, std::unordered_map<std::type_index, std::unique_ptr<Component>>> entities1;
     std::size_t entitiesNbr = -1;
-    sceneManager *SceneManager;
+    sceneManager *SceneManager; // Scene Manager
+
+    // Scene Network Config
+    bool isNetworked = false;
+    std::string serverAdress = "localhost";
+    unsigned short int port = 54000;
+    float tickRate = 0.0083;
 };

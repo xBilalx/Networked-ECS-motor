@@ -31,6 +31,11 @@ class sceneManager {
             initSceneLamda(*scene);
         }
 
+        void setServerNetwork(std::string ip_, unsigned short int port_, float tickRate_) {
+            ip = ip_;
+            port = port_;
+            tickRate = tickRate_;
+        }
 
         void setCurrentScene(std::string scene) {
             currentScene = scene;
@@ -41,12 +46,13 @@ class sceneManager {
             if (isLocalClient || !isServer) {
                 renderSystem.createWindow(1920, 1080, "Server Render");
             }
-
+            if (isServer) {
+                serverNetworkSystem = std::make_unique<ServerNetworkSystem>(ip, port, tickRate);
+            }
 
             int check = 0;
             while(1) {
                 isNewScene = false;
-                std::cout << currentScene <<"ee\n";
                 check = runScene(currentScene);
                 if (!check) {
                     std::cout << "Erreur de Scene\n";
@@ -55,7 +61,15 @@ class sceneManager {
             }
         }
 
-
+        std::shared_ptr<Scene> getScene(std::string sceneName) {
+            auto it = scenes.find(sceneName);
+            if (it == scenes.end()) {
+                std::cout << "IL existe pas\n";
+                return nullptr;
+            }
+            std::cout << "Get scene\n";
+            return it->second;
+        }
 
         // Run scene
         // Return true -> Change scene
@@ -66,10 +80,7 @@ class sceneManager {
                 std::cout << "IL existe pas\n";
                 return false;
             }
-            if (it->second) {
-                std::cout << it->second->createEntity() << "ss" << std::endl;
-            }
-            
+        
             if (isServer) {
                 return runSceneServer(*it->second);
             }
@@ -79,12 +90,25 @@ class sceneManager {
             return false;
         }
 
-        void changeScene(std::string sceneName) {
-            std::cout << "CHANGE SCENE" << sceneName << std::endl;
-        }
+
         void reloadScene(std::string sceneName) {
-            std::cout << "NEW SCENE" << sceneName << std::endl;
+            auto it = scenes.find(sceneName);
+            if (it == scenes.end()) {
+                std::cout << "IL existe pas\n";
+                return;
+            }
+            // lambda
+            auto it1 = initScenes.find(sceneName);
+            if (it1 == initScenes.end()) {
+                std::cout << "IL existe pas\n";
+                return;
+            }
+            it->second->clear();
+            it1->second(*it->second);
         }
+
+        
+
         bool isNewScene; // A mettre en privée
 
 
@@ -95,7 +119,6 @@ class sceneManager {
             TimeSystem timeSystem;
             
             MovementSystem movementSystem;
-            ServerNetworkSystem serverNetworkSystem("127.0.0.1", 8089, 0.0083);
 
             sf::Clock clock;
             sf::RenderWindow& win = renderSystem.getWindow();
@@ -103,13 +126,13 @@ class sceneManager {
             // peut être gérer les système dans le systeme manager pour que le dev puisse mieux config ??
             while(1) {
                 float dt = clock.restart().asSeconds();
-                // serverNetworkSystem.dataFromClients(em);
+                serverNetworkSystem->dataFromClients(em);
                 timeSystem.update(em, dt);
                 if (isLocalClient) {
                     inputSystem.updateForServer(em, win);
                 }
                 movementSystem.update(em);
-                // serverNetworkSystem.dataToClients(em, dt);
+                serverNetworkSystem->dataToClients(em, dt);
                 win.clear();
                 renderSystem.update(em);
                 win.display();
@@ -125,23 +148,29 @@ class sceneManager {
             InputSystem inputSystem;
             TimeSystem timeSystem;
             bool chechk = false;
-
+            bool isNetworked = em.isNetworked;
 
             MovementSystem movementSystem;
-            ClientNetworkSystem clientNetworkSystem("127.0.0.1", 8089, 0.0083);
+            ClientNetworkSystem clientNetworkSystem(em.serverAdress, em.port, em.tickRate);
+            clientNetworkSystem.test();
 
             sf::Clock clock;
             sf::RenderWindow& win = renderSystem.getWindow();
 
             while(win.isOpen()) {
                 float dt = clock.restart().asSeconds();
-                if (!chechk) {
-                    clientNetworkSystem.test(); // Envoie un paquet CONNECT mais a upgrade
-                    chechk = true;
+                if (isNetworked) {
+                    if (!chechk) {
+                        clientNetworkSystem.test(); // Envoie un paquet CONNECT mais a upgrade
+                        chechk = true;
+                    }
                 }
+
                 timeSystem.update(em, dt);
-                clientNetworkSystem.dataToServer(em, inputSystem, dt);
-                clientNetworkSystem.dataFromServer(em);
+                if (isNetworked) {
+                    clientNetworkSystem.dataToServer(em, inputSystem, dt);
+                    clientNetworkSystem.dataFromServer(em);
+                }
                 win.clear();
                 renderSystem.update(em);
                 win.display();
@@ -158,7 +187,11 @@ class sceneManager {
         std::unordered_map<std::string, std::shared_ptr<Scene>> scenes;
         std::string currentScene;
         RenderSystem renderSystem;
+        std::unique_ptr<ServerNetworkSystem> serverNetworkSystem;
 
+        std::string ip = "127.0.0.1";
+        std::uint16_t port = 8089;
+        float tickRate = 0.0083;
         bool isServer; // applique les sytemes
         bool debug;  // debug ⚠️ Pas de logique encore implémenté
         bool isLocalClient; // Local Client Only for servers  si il y a un client local ⚠️ Pas de logique encore implémenté

@@ -64,6 +64,7 @@ public:
     // Only for server
     void bindSocket(const std::string &ip, uint16_t port)
     {
+        std::cout << "Server bind in " << ip << " and port " << port << std::endl;
         struct sockaddr_in addr;
         memset(&addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
@@ -108,11 +109,11 @@ public:
             char senderIp[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, &senderAddr.sin_addr, senderIp, INET_ADDRSTRLEN);
             uint16_t senderPort = ntohs(senderAddr.sin_port);
-            std::cout << receivedBytes << std::endl;
+            // std::cout << receivedBytes << std::endl;
             char *buffer = (char *) malloc(sizeof(char) * receivedBytes + 1);
             memcpy(buffer, data, receivedBytes);
             packets.push_back(Packet(std::string(senderIp), senderPort, buffer));
-            std::cout << "---------------> " << std::string(senderIp) << std::endl;
+            // std::cout << "---------------> " << std::string(senderIp) << std::endl;
         }
         return packets;
     }
