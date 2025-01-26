@@ -56,8 +56,13 @@ public:
     std::size_t entitiesNbr = -1;
     sceneManager *SceneManager; // Scene Manager
 
+    // Scene End Config
+    bool isClearAtEnd = false;
+
     // Scene Network Config
     bool isNetworked = false;
+    bool isServerScene = false;
+    // bool sendFlagClear = true; // Only for server : Send flag Clear in Client
     std::string serverAdress = "localhost";
     unsigned short int port = 54000;
     float tickRate = 0.0083;

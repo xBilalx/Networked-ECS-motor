@@ -48,5 +48,6 @@ public:
         POSITION,   // Server to Client
         NEXT,
         END,
+        CLEAR,
     };
 };
