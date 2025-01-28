@@ -1,84 +1,113 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "../../ecs/common/ecs/scene/sceneManager.hpp"
-#include "../../ecs/common/ecs/components/Render/WindowComponent.hpp"
-#include "../../ecs/common/ecs/components/Input/InputComponent.hpp"
-#include "../../ecs/common/ecs/components/Transform/PositionComponent.hpp"
-#include "../../ecs/common/ecs/components/Network/BindRemoteComponent.hpp"
-#include "../../ecs/common/ecs/components/Time/CoolDownAction.hpp"
-#include "../../ecs/common/ecs/entitiesManager.hpp"
-#include "../../ecs/common/ecs/systems/Render/RenderSystem.hpp"
-#include "../../ecs/common/ecs/systems/Input/InputSystem.hpp"
-#include "../../ecs/common/ecs/systems/Network/NetworkManager.hpp"
-#include "../../ecs/common/ecs/systems/Network/ServerNetwork.hpp"
-#include "../../ecs/common/ecs/systems/Transform/MovementSystem.hpp"
-#include "../../ecs/common/ecs/scene/sceneManager.hpp"
-
-#include <bits/stdc++.h>
-
+#include <cmath>
 
 class MenuScene {
 public:
     MenuScene() {
         // Initialisation de la fenêtre SFML
         window.create(sf::VideoMode(800, 800), "Menu Principal");
+
+        // Charger le fond d'écran
+        if (!backgroundTexture.loadFromFile("assets/power4_background.png")) {
+            std::cerr << "Erreur: Impossible de charger le fond d'ecran." << std::endl;
+        }
+        backgroundSprite.setTexture(backgroundTexture);
+        backgroundSprite.setScale(
+            static_cast<float>(window.getSize().x) / backgroundTexture.getSize().x,
+            static_cast<float>(window.getSize().y) / backgroundTexture.getSize().y
+        );
+
+        // Charger la police
+        if (!font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")) {
+            std::cerr << "Erreur: Impossible de charger la police par défaut." << std::endl;
+        }
+
+        // Configurer les boutons
+        setupButton(startButton, startButtonBackground, "Start Game", 300);
+        setupButton(quitButton, quitButtonBackground, "Quit", 400);
     }
 
     void initialize() {
         std::cout << "MenuScene initialized." << std::endl;
     }
 
-    void update(sceneManager* sceneManager) {
+    void update() {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
                 exit(0);
             }
+
+            // Gestion de l'état hover et click des boutons
+            sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+            handleButtonHover(startButton, startButtonBackground, mousePosition);
+            handleButtonHover(quitButton, quitButtonBackground, mousePosition);
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (startButtonBackground.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePosition))) {
+                    std::cout << "Start Game clicked!" << std::endl;
+                } else if (quitButtonBackground.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePosition))) {
+                    window.close();
+                    exit(0);
+                }
+            }
         }
 
         // Afficher le menu
         window.clear();
-        displayMenu();
+        window.draw(backgroundSprite);
+        window.draw(startButtonBackground);
+        window.draw(startButton);
+        window.draw(quitButtonBackground);
+        window.draw(quitButton);
         window.display();
-
-        // Gestion des entrées utilisateur (temporairement clavier)
-        int choice;
-        std::cout << "1: Start Game\n2: Quit\nEnter your choice: ";
-        std::cin >> choice;
-
-        if (choice == 1) {
-            // Passer à la scène du jeu
-            sceneManager->setCurrentScene("Power4");
-            sceneManager->isNewScene = true;
-        } else if (choice == 2) {
-            window.close();
-            exit(0);
-        }
     }
 
 private:
     sf::RenderWindow window;
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
+    sf::Font font;
+    sf::Text startButton;
+    sf::Text quitButton;
+    sf::RectangleShape startButtonBackground;
+    sf::RectangleShape quitButtonBackground;
 
-    void displayMenu() {
-        // Menu visuel simplifié (remplacer par des éléments graphiques si nécessaire)
-        sf::Font font;
-        font.loadFromFile("path/to/font.ttf");
+    void setupButton(sf::Text& button, sf::RectangleShape& buttonBackground, const std::string& text, float yPosition) {
+        button.setFont(font);
+        button.setString(text);
+        button.setCharacterSize(40);
+        button.setFillColor(sf::Color::White);
+        button.setStyle(sf::Text::Bold);
 
-        sf::Text title("Puissance 4", font, 50);
-        title.setPosition(250, 100);
-        title.setFillColor(sf::Color::White);
+        sf::FloatRect textBounds = button.getLocalBounds();
+        button.setPosition(
+            (window.getSize().x - textBounds.width) / 2.0f, // Centrer horizontalement
+            yPosition + 10 // Décalage pour centrer dans le bouton
+        );
 
-        sf::Text startGame("1: Start Game", font, 30);
-        startGame.setPosition(250, 300);
-        startGame.setFillColor(sf::Color::White);
+        // Configurer l'arrière-plan du bouton
+        buttonBackground.setSize(sf::Vector2f(textBounds.width + 40, textBounds.height + 30));
+        buttonBackground.setFillColor(sf::Color(50, 50, 150)); // Couleur bleu foncé
+        buttonBackground.setOutlineColor(sf::Color::White);
+        buttonBackground.setOutlineThickness(2);
+        buttonBackground.setPosition(
+            button.getPosition().x - 20, // Décalage pour centrer autour du texte
+            button.getPosition().y - 15
+        );
+    }
 
-        sf::Text quitGame("2: Quit", font, 30);
-        quitGame.setPosition(250, 400);
-        quitGame.setFillColor(sf::Color::White);
-
-        window.draw(title);
-        window.draw(startGame);
-        window.draw(quitGame);
+    void handleButtonHover(sf::Text& button, sf::RectangleShape& buttonBackground, const sf::Vector2i& mousePosition) {
+        if (buttonBackground.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePosition))) {
+            buttonBackground.setFillColor(sf::Color(70, 70, 200)); // Couleur hover
+            button.setFillColor(sf::Color::Yellow); // Texte sur hover
+        } else {
+            buttonBackground.setFillColor(sf::Color(50, 50, 150)); // Couleur par défaut
+            button.setFillColor(sf::Color::White); // Texte par défaut
+        }
     }
 };
