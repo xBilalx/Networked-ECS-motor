@@ -6,12 +6,22 @@
 #include "../logic/Power4LogicSystem.hpp"
 #include "../../ecs/common/ecs/systems/Grid/GridSystem.hpp"
 #include <SFML/Graphics.hpp>
+#include <cmath>
+#include <string>
 
 class Power4Scene {
 public:
     Power4Scene()
         : gridComponent(6, 7), // Initialisation de la grille avec 6 lignes et 7 colonnes
-          currentPlayer(1) {}
+          currentPlayer(1), currentArrowColumn(3), arrowBounceOffset(0.0f), arrowBounceDirection(1) {
+        if (!font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")) {
+            std::cerr << "Erreur: Impossible de charger la police par défaut." << std::endl;
+        }
+        winText.setFont(font);
+        winText.setCharacterSize(40);
+        winText.setFillColor(sf::Color::White);
+        winText.setStyle(sf::Text::Bold);
+    }
 
     // Initialisation de la scène
     void initialize() {
@@ -29,6 +39,10 @@ public:
             std::cerr << "Erreur: Impossible de charger le fond d'ecran." << std::endl;
         }
         backgroundSprite.setTexture(backgroundTexture);
+        backgroundSprite.setScale(
+            static_cast<float>(window.getSize().x) / backgroundTexture.getSize().x,
+            static_cast<float>(window.getSize().y) / backgroundTexture.getSize().y
+        );
 
         // Charger les sprites des joueurs
         if (!blueBubbleTexture.loadFromFile("assets/blue_bubble.png")) {
@@ -37,14 +51,21 @@ public:
         if (!yellowBubbleTexture.loadFromFile("assets/yellow_bubble.png")) {
             std::cerr << "Erreur: Impossible de charger yellow_bubble.png." << std::endl;
         }
+        if (!popBubbleTexture.loadFromFile("assets/bubble_pop.png")) {
+            std::cerr << "Erreur: Impossible de charger bubble_pop.png." << std::endl;
+        }
 
-        // Ajuster la taille du sprite pour correspondre à la fenêtre
-        sf::Vector2u textureSize = backgroundTexture.getSize();
-        sf::Vector2u windowSize = window.getSize();
-        backgroundSprite.setScale(
-            static_cast<float>(windowSize.x) / textureSize.x,
-            static_cast<float>(windowSize.y) / textureSize.y
-        );
+        // Charger les flèches des joueurs
+        if (!blueArrowTexture.loadFromFile("assets/blue_arrow.png")) {
+            std::cerr << "Erreur: Impossible de charger blue_arrow.png." << std::endl;
+        }
+        if (!yellowArrowTexture.loadFromFile("assets/yellow_arrow.png")) {
+            std::cerr << "Erreur: Impossible de charger yellow_arrow.png." << std::endl;
+        }
+
+        // Configurer la flèche initiale
+        arrowSprite.setTexture(currentPlayer == 1 ? blueArrowTexture : yellowArrowTexture);
+        arrowSprite.setScale(0.9f, 0.9f); // Ajuster la taille proportionnelle à la cellule
 
         std::cout << "Power4Scene initialized." << std::endl;
     }
@@ -52,7 +73,19 @@ public:
     // Mise à jour de la scène
     void update() {
         if (gameState.getGameOver()) {
-            std::cout << "Game Over! Player " << currentPlayer << " wins!" << std::endl;
+            // Définir le texte de victoire
+            winText.setString((currentPlayer == 1 ? "Blue Bubble" : "Yellow Bubble") + std::string("\nwon the game!"));
+            winText.setPosition(
+                (window.getSize().x - winText.getLocalBounds().width) / 2.0f, // Centrage horizontal
+                30.0f // Position en haut de l'écran
+            );
+
+            // Afficher l'écran final
+            window.clear();
+            window.draw(backgroundSprite);
+            displayGrid();
+            window.draw(winText);
+            window.display();
             return;
         }
 
@@ -63,33 +96,41 @@ public:
                 window.close();
                 exit(0);
             }
+
+            // Déplacer la flèche avec les touches gauche et droite
+            if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Left && currentArrowColumn > 0) {
+                    currentArrowColumn--;
+                } else if (event.key.code == sf::Keyboard::Right && currentArrowColumn < gridComponent.getCols() - 1) {
+                    currentArrowColumn++;
+                } else if (event.key.code == sf::Keyboard::Space) {
+                    // Confirmer la position et placer le jeton
+                    if (logicSystem.placeToken(gridSystem, gridComponent, currentArrowColumn, currentPlayer)) {
+                        if (logicSystem.checkWin(gridSystem, gridComponent, currentPlayer)) {
+                            logicSystem.replaceWinningBubbles(gridComponent); // Remplacer les cellules gagnantes
+                            gameState.setGameOver(true);
+                        } else {
+                            currentPlayer = (currentPlayer == 1) ? 2 : 1;
+                            gameState.setCurrentPlayerId(currentPlayer);
+                            arrowSprite.setTexture(currentPlayer == 1 ? blueArrowTexture : yellowArrowTexture);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Animation de la flèche (rebond)
+        arrowBounceOffset += 0.1f * arrowBounceDirection;
+        if (std::abs(arrowBounceOffset) > 10.0f) {
+            arrowBounceDirection *= -1;
         }
 
         // Dessine la scène
         window.clear();
         window.draw(backgroundSprite); // Dessine le fond d'écran
         displayGrid(); // Dessine la grille par-dessus
+        displayArrow(); // Dessine la flèche au-dessus
         window.display();
-
-        // Gestion des entrées : choix de la colonne (temporaire pour le texte)
-        size_t column;
-        std::cout << "Player " << currentPlayer << ", choose a column (0-6): ";
-        std::cin >> column;
-
-        if (!logicSystem.placeToken(gridSystem, gridComponent, column, currentPlayer)) {
-            std::cout << "Invalid move. Try again." << std::endl;
-            return;
-        }
-
-        // Vérifie si le joueur courant a gagné
-        if (logicSystem.checkWin(gridSystem, gridComponent, currentPlayer)) {
-            gameState.setGameOver(true);
-            return;
-        }
-
-        // Passe au joueur suivant
-        currentPlayer = (currentPlayer == 1) ? 2 : 1;
-        gameState.setCurrentPlayerId(currentPlayer);
     }
 
 private:
@@ -98,11 +139,20 @@ private:
     GridSystem gridSystem;
     Power4LogicSystem logicSystem;
     int currentPlayer;
+    int currentArrowColumn;
+    float arrowBounceOffset;
+    int arrowBounceDirection;
     sf::RenderWindow window;
+    sf::Font font;
+    sf::Text winText;
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite;
     sf::Texture blueBubbleTexture;
     sf::Texture yellowBubbleTexture;
+    sf::Texture popBubbleTexture;
+    sf::Texture blueArrowTexture;
+    sf::Texture yellowArrowTexture;
+    sf::Sprite arrowSprite;
 
     // Dessine la grille graphiquement
     void displayGrid() {
@@ -130,6 +180,8 @@ private:
                     cellSprite.setTexture(blueBubbleTexture);
                 } else if (cellState == 2) {
                     cellSprite.setTexture(yellowBubbleTexture);
+                } else if (cellState == -1) {
+                    cellSprite.setTexture(popBubbleTexture);
                 }
 
                 // Redimensionner les sprites pour s'adapter à la taille des cellules
@@ -145,5 +197,22 @@ private:
                 window.draw(cellSprite);
             }
         }
+    }
+
+    // Dessine la flèche au-dessus de la grille
+    void displayArrow() {
+        float cellSize = 80.0f;
+
+        // Positionnement centré de la grille
+        float offsetX = (window.getSize().x - (gridComponent.getCols() * cellSize)) / 2.0f;
+        float offsetY = (window.getSize().y - (gridComponent.getRows() * cellSize)) / 2.0f;
+        float arrowYPosition = offsetY - cellSize - 10.0f + arrowBounceOffset; // Animation rebond
+
+        arrowSprite.setScale(
+            (cellSize - 5.0f) / blueArrowTexture.getSize().x,
+            (cellSize - 5.0f) / blueArrowTexture.getSize().y
+        );
+        arrowSprite.setPosition(offsetX + currentArrowColumn * cellSize, arrowYPosition);
+        window.draw(arrowSprite);
     }
 };
