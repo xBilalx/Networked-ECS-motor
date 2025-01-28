@@ -1,4 +1,5 @@
 #pragma once
+#include "../../components/Input/InputComponent.hpp"
 
 
 class MovementSystem {

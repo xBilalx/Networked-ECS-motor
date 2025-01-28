@@ -70,11 +70,6 @@ public:
         }
     }
 
-    // Affiche un message de victoire
-    std::string getWinMessage(int playerId) const {
-        return (playerId == 1) ? "Player Blue won the game!" : "Player Yellow won the game!";
-    }
-
 private:
     std::vector<std::pair<size_t, size_t>> winningCells; // Liste des cellules gagnantes
 
@@ -98,9 +93,4 @@ private:
         winningCells = tempCells;
         return true;
     }
-};
-
-enum class Power4MessageType : uint8_t {
-    ACTION_PLACE_TOKEN,  // Client -> Serveur : Joueur place un jeton
-    GAME_STATE_UPDATE,   // Serveur -> Client : Mise à jour de l'état du jeu
 };

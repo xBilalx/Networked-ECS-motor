@@ -2,6 +2,7 @@
 
 #include "../../entitiesManager.hpp"
 #include "../../components/Network/BindRemoteComponent.hpp"
+#include "../../components/Input/InputComponent.hpp"
 
 class InputSystem {
 public:
