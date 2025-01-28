@@ -6,13 +6,10 @@
 
 class MenuScene {
 public:
-    MenuScene() {
-        // Initialisation de la fenêtre SFML
-        window.create(sf::VideoMode(800, 800), "Menu Principal");
-
+    MenuScene(sf::RenderWindow& sharedWindow) : window(sharedWindow), startClicked(false), quitClicked(false) {
         // Charger le fond d'écran
         if (!backgroundTexture.loadFromFile("assets/power4_background.png")) {
-            std::cerr << "Erreur: Impossible de charger le fond d'ecran." << std::endl;
+            std::cerr << "Erreur: Impossible de charger le fond d'écran." << std::endl;
         }
         backgroundSprite.setTexture(backgroundTexture);
         backgroundSprite.setScale(
@@ -25,13 +22,18 @@ public:
             std::cerr << "Erreur: Impossible de charger la police par défaut." << std::endl;
         }
 
-        // Configurer les boutons
-        setupButton(startButton, startButtonBackground, "Start Game", 300);
+        // Configuration des boutons
+        setupButton(startButton, startButtonBackground, "Play Bubble WaR", 300);
         setupButton(quitButton, quitButtonBackground, "Quit", 400);
     }
 
     void initialize() {
         std::cout << "MenuScene initialized." << std::endl;
+
+        // Réinitialiser les états des boutons
+        resetButtonStates();
+        startClicked = false;
+        quitClicked = false;
     }
 
     void update() {
@@ -42,22 +44,27 @@ public:
                 exit(0);
             }
 
-            // Gestion de l'état hover et click des boutons
+            // Récupérer la position de la souris
             sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-            handleButtonHover(startButton, startButtonBackground, mousePosition);
-            handleButtonHover(quitButton, quitButtonBackground, mousePosition);
 
-            if (event.type == sf::Event::MouseButtonPressed) {
+            // Gestion des événements de la souris
+            if (event.type == sf::Event::MouseMoved) {
+                handleButtonHover(startButton, startButtonBackground, mousePosition);
+                handleButtonHover(quitButton, quitButtonBackground, mousePosition);
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
                 if (startButtonBackground.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePosition))) {
                     std::cout << "Start Game clicked!" << std::endl;
+                    startClicked = true;
                 } else if (quitButtonBackground.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePosition))) {
-                    window.close();
-                    exit(0);
+                    std::cout << "Quit clicked!" << std::endl;
+                    quitClicked = true;
                 }
             }
         }
 
-        // Afficher le menu
+        // Affichage des éléments
         window.clear();
         window.draw(backgroundSprite);
         window.draw(startButtonBackground);
@@ -67,8 +74,18 @@ public:
         window.display();
     }
 
+    // Retourne si "Start Game" a été cliqué
+    bool isStartClicked() const {
+        return startClicked;
+    }
+
+    // Retourne si "Quit" a été cliqué
+    bool isQuitClicked() const {
+        return quitClicked;
+    }
+
 private:
-    sf::RenderWindow window;
+    sf::RenderWindow& window;
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite;
     sf::Font font;
@@ -76,6 +93,9 @@ private:
     sf::Text quitButton;
     sf::RectangleShape startButtonBackground;
     sf::RectangleShape quitButtonBackground;
+
+    bool startClicked;
+    bool quitClicked;
 
     void setupButton(sf::Text& button, sf::RectangleShape& buttonBackground, const std::string& text, float yPosition) {
         button.setFont(font);
@@ -86,17 +106,16 @@ private:
 
         sf::FloatRect textBounds = button.getLocalBounds();
         button.setPosition(
-            (window.getSize().x - textBounds.width) / 2.0f, // Centrer horizontalement
-            yPosition + 10 // Décalage pour centrer dans le bouton
+            (window.getSize().x - textBounds.width) / 2.0f,
+            yPosition + 10
         );
 
-        // Configurer l'arrière-plan du bouton
         buttonBackground.setSize(sf::Vector2f(textBounds.width + 40, textBounds.height + 30));
-        buttonBackground.setFillColor(sf::Color(50, 50, 150)); // Couleur bleu foncé
+        buttonBackground.setFillColor(sf::Color(50, 50, 150));
         buttonBackground.setOutlineColor(sf::Color::White);
         buttonBackground.setOutlineThickness(2);
         buttonBackground.setPosition(
-            button.getPosition().x - 20, // Décalage pour centrer autour du texte
+            button.getPosition().x - 20,
             button.getPosition().y - 15
         );
     }
@@ -109,5 +128,13 @@ private:
             buttonBackground.setFillColor(sf::Color(50, 50, 150)); // Couleur par défaut
             button.setFillColor(sf::Color::White); // Texte par défaut
         }
+    }
+
+    void resetButtonStates() {
+        startButtonBackground.setFillColor(sf::Color(50, 50, 150)); // Couleur par défaut
+        startButton.setFillColor(sf::Color::White);
+
+        quitButtonBackground.setFillColor(sf::Color(50, 50, 150)); // Couleur par défaut
+        quitButton.setFillColor(sf::Color::White);
     }
 };
