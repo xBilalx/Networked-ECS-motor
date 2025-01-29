@@ -38,23 +38,33 @@ class RenderSystem
             return window;
         };
         void update(Scene& scene) {
-            window.clear();
-            for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
-                PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
-                RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
-                
-                if (position && render) {
+        window.clear();
+
+        for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+            PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
+            RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
+
+            if (render) {
+                sf::Vector2u windowSize = window.getSize();
+                sf::Vector2u textureSize = render->texture.getSize();
+
+                if (textureSize.x > 0 && textureSize.y > 0) { // Éviter division par zéro
+                    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+                    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+                    render->sprite.setScale(scaleX, scaleY);
+                }
+
+                if (position) {
                     render->sprite.setPosition(position->position.x, position->position.y);
-                    window.draw(render->sprite);
-                    continue;
-                }
-                if (render) {
+                } else {
                     render->sprite.setPosition(0, 0);
-                    window.draw(render->sprite);
-                    continue; 
                 }
-            }
-            window.display();
+                
+                window.draw(render->sprite);
+        }
+    }
+    
+    window.display();
         }
     protected:
 
