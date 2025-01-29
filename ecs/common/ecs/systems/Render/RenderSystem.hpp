@@ -4,6 +4,10 @@
 #include "../../components/Render/WindowComponent.hpp"
 #include "../../components/Transform/PositionComponent.hpp"
 #include "../../components/Render/RenderComponent.hpp"
+#include "../../components/Box/RectangleComponent.hpp"
+#include "../../components/Box/HoverComponent.hpp"
+#include "../../components/Text/TextComponent.hpp"
+
 #include <SFML/Graphics.hpp>
 
 // Pour une futur classe
@@ -37,14 +41,19 @@ class RenderSystem
         sf::RenderWindow& getWindow() {
             return window;
         };
-        void update(Scene& scene) {
+    void update(Scene& scene) {
         window.clear();
+
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
         for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
             PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
             RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
+            RectangleComponent* rect = scene.getComponent<RectangleComponent>(it->first);
+            HoverComponent* hover = scene.getComponent<HoverComponent>(it->first);
+            TextComponent* textComp = scene.getComponent<TextComponent>(it->first);
 
-            if (render) {
+            if (render) { // Affichage des entités avec une texture
                 sf::Vector2u windowSize = window.getSize();
                 sf::Vector2u textureSize = render->texture.getSize();
 
@@ -59,13 +68,38 @@ class RenderSystem
                 } else {
                     render->sprite.setPosition(0, 0);
                 }
-                
+
                 window.draw(render->sprite);
+            }
+
+            if (rect) {
+                sf::RectangleShape buttonShape(sf::Vector2f(rect->width, rect->height));
+                buttonShape.setPosition(rect->x, rect->y);
+                
+                if (hover) {
+                    sf::FloatRect buttonBounds(rect->x, rect->y, rect->width, rect->height);
+                    hover->isHovered = buttonBounds.contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                    buttonShape.setFillColor(hover->isHovered ? hover->hoverColor : rect->color);
+                } else {
+                    buttonShape.setFillColor(rect->color);
+                }
+                
+                window.draw(buttonShape);
+            }
+
+            if (textComp) {
+                if (position) {
+                    textComp->text.setPosition(position->position.x + rect->width / 4, position->position.y + rect->height / 4);
+                } else {
+                    textComp->text.setPosition(0, 0);
+                }
+                window.draw(textComp->text);
+            }
         }
+        
+        window.display();
     }
-    
-    window.display();
-        }
+
     protected:
 
     private:

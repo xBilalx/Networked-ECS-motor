@@ -12,35 +12,21 @@
 #include <iostream>
 
 
-
 class ButtonModel {
 public:
-    struct Button {
-        sf::RectangleShape shape;
-        sf::Color defaultColor;
-        sf::Color hoverColor;
-        std::function<void()> onClick;
+    ButtonModel(Scene& scene, float x, float y, float width, float height, sf::Color color, const std::string& text, sf::Font& font, unsigned int textSize, sf::Color textColor) {
+        buttonEntity = scene.createEntity();
+        scene.addComponent<PositionComponent>(buttonEntity, x, y);
+        scene.addComponent<RectangleComponent>(buttonEntity, x, y, width, height, color); // Ajout de la couleur
+        scene.addComponent<RenderComponent>(buttonEntity, "", true); // Assure que le bouton s'affiche
+        scene.addComponent<TextComponent>(buttonEntity, text, font, textSize, textColor); // Ajout du texte
+        scene.addComponent<HoverComponent>(buttonEntity, color, sf::Color::White); // Gère le survol
+    }
 
-        Button(float x, float y, float width, float height, sf::Color color, sf::Color hover, std::function<void()> action)
-            : defaultColor(color), hoverColor(hover), onClick(action) {
-            shape.setPosition(x, y);
-            shape.setSize(sf::Vector2f(width, height));
-            shape.setFillColor(defaultColor);
-        }
+    std::size_t getEntity() const {
+        return buttonEntity;
+    }
 
-        void update(const sf::RenderWindow& window) {
-            if (shape.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
-                shape.setFillColor(hoverColor);
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                    onClick();
-                }
-            } else {
-                shape.setFillColor(defaultColor);
-            }
-        }
-
-        void draw(sf::RenderWindow& window) {
-            window.draw(shape);
-        }
-    };
+private:
+    std::size_t buttonEntity;
 };
