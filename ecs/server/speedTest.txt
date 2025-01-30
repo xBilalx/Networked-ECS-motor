@@ -1,0 +1,11 @@
+CONTEXTE : 100 entités : Pos / Render / Input / Bind Client 1
+
+Serveur :
+- Sans sytème : 1.69 microsecondes
+- Avec systeme sans connexion: ~200 microsecondes
+- Avec systeme avec 1 connexion: ~200 microsecondes
+- Avec systeme avec 2 connexion : ~200 microsecondes
+
+Client 0 : 
+- Chargement des entités : 2.37087s
+- Avec tout les systemes : 30.91 millisecondes

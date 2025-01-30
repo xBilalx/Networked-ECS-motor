@@ -17,10 +17,11 @@
 
 
 int main() {
-    sceneManager SceneManager(true, true);
+    // Regler le problème si on Bind une idClient trop haute
+    sceneManager SceneManager(true, true, false);
     SceneManager.addScene("test", [](Scene& scene) {
         scene.isServerScene = true;
-
+        
         std::size_t player = scene.createEntity(); // Client Local
         scene.addComponent<InputComponent>(player);
         scene.addComponent<PositionComponent>(player, 10, 19);
@@ -30,7 +31,7 @@ int main() {
         scene.addComponent<InputComponent>(player1);
         scene.addComponent<PositionComponent>(player1, 100, 500);
         scene.addComponent<RenderComponent>(player1, "../../game/common/bubble.png", true);
-        scene.addComponent<BindClientComponent>(player1);
+        scene.addComponent<BindClientComponentTest>(player1, 0);
 
         std::size_t changeScene = scene.createEntity();
         scene.addComponent<CoolDownActionComponent>(changeScene, false, 10, [](Scene& em) {
@@ -46,24 +47,24 @@ int main() {
         scene.addComponent<InputComponent>(player1);
         scene.addComponent<PositionComponent>(player1, 500, 800);
         scene.addComponent<RenderComponent>(player1, "../../game/common/bubbleGum.png", true);
+        scene.addComponent<BindClientComponentTest>(player1, 0);
 
         player1 = scene.createEntity(); // Client Local
         scene.addComponent<InputComponent>(player1);
         scene.addComponent<PositionComponent>(player1, 10, 19);
         scene.addComponent<RenderComponent>(player1, "../../game/common/bubble.png", true);
-        scene.addComponent<BindClientComponent>(player1);
+        scene.addComponent<BindClientComponentTest>(player1, 1);
 
         player1 = scene.createEntity(); // Client 1
         scene.addComponent<InputComponent>(player1);
         scene.addComponent<PositionComponent>(player1, 100, 500);
         scene.addComponent<RenderComponent>(player1, "../../game/common/bubble.png", true);
-        scene.addComponent<BindClientComponent>(player1);
+        scene.addComponent<BindClientComponentTest>(player1, 1);
 
         player1 = scene.createEntity(); // Client 1
         scene.addComponent<InputComponent>(player1);
         scene.addComponent<PositionComponent>(player1, 100, 800);
         scene.addComponent<RenderComponent>(player1, "../../game/common/bubbleGum.png", true);
-        scene.addComponent<BindClientComponent>(player1);
     });
     SceneManager.setCurrentScene("test");
     SceneManager.setServerNetwork("127.0.0.1", 8090, 0.0083);

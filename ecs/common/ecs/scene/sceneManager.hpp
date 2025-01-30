@@ -12,7 +12,6 @@
 #include "../systems/Network/ServerNetwork.hpp"
 #include "../systems/Network/ClientNetworkSystem.hpp"
 #include "../systems/Time/TimeSystem.hpp"
-
 #include <functional>
 
 // sceneManager(bool isServer, bool debug=false, bool isLocalClient=true)
@@ -115,6 +114,9 @@ class sceneManager {
             // peut être gérer les système dans le systeme manager pour que le dev puisse mieux config ??
             while(1) {
                 float dt = clock.restart().asSeconds();
+                if (debug) {
+                    std::cout << "Time for loop -> " << dt << "s\n"; 
+                }
                 if (isServerScene) {
                     serverNetworkSystem->dataFromClients(em);
                 }            
@@ -132,6 +134,7 @@ class sceneManager {
                     serverNetworkSystem->sendClearScene(em, dt);
                     return true;
                 }
+                sf::sleep(sf::milliseconds(16));
             }
         }
 
@@ -151,6 +154,9 @@ class sceneManager {
 
             while(win.isOpen()) {
                 float dt = clock.restart().asSeconds();
+                if (debug) {
+                    std::cout << "Time for loop -> " << dt << "s\n"; 
+                }
                 if (isNetworked) {
                     if (!chechk) {
                         clientNetworkSystem.test(); // Envoie un paquet CONNECT mais a upgrade
@@ -169,9 +175,9 @@ class sceneManager {
                 inputSystem.update(em, win);
                 movementSystem.update(em);
                 if (isNewScene) {
-
                     return true;
                 }
+                sf::sleep(sf::milliseconds(16));
             }
             return false;
         }

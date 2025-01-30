@@ -12,7 +12,7 @@
 
 
 int main() {
-    sceneManager SceneManager(false);
+    sceneManager SceneManager(false, true);
     SceneManager.addScene("sync_test", [](Scene& scene) {
         scene.isNetworked = true;
         scene.serverAdress = "127.0.0.1";
