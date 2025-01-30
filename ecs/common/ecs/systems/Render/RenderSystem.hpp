@@ -43,21 +43,18 @@ class RenderSystem
         };
     void update(Scene& scene) {
         window.clear();
-
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
+        // Première passe : afficher le fond en premier
         for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
-            PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
             RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
-            RectangleComponent* rect = scene.getComponent<RectangleComponent>(it->first);
-            HoverComponent* hover = scene.getComponent<HoverComponent>(it->first);
-            TextComponent* textComp = scene.getComponent<TextComponent>(it->first);
+            PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
 
-            if (render) { // Affichage des entités avec une texture
+            if (render) {
                 sf::Vector2u windowSize = window.getSize();
                 sf::Vector2u textureSize = render->texture.getSize();
 
-                if (textureSize.x > 0 && textureSize.y > 0) { // Éviter division par zéro
+                if (textureSize.x > 0 && textureSize.y > 0) {
                     float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
                     float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
                     render->sprite.setScale(scaleX, scaleY);
@@ -71,11 +68,18 @@ class RenderSystem
 
                 window.draw(render->sprite);
             }
+        }
+
+        // Deuxième passe : afficher les boutons et le texte après
+        for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+            RectangleComponent* rect = scene.getComponent<RectangleComponent>(it->first);
+            HoverComponent* hover = scene.getComponent<HoverComponent>(it->first);
+            TextComponent* textComp = scene.getComponent<TextComponent>(it->first);
 
             if (rect) {
                 sf::RectangleShape buttonShape(sf::Vector2f(rect->width, rect->height));
                 buttonShape.setPosition(rect->x, rect->y);
-                
+
                 if (hover) {
                     sf::FloatRect buttonBounds(rect->x, rect->y, rect->width, rect->height);
                     hover->isHovered = buttonBounds.contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
@@ -83,20 +87,18 @@ class RenderSystem
                 } else {
                     buttonShape.setFillColor(rect->color);
                 }
-                
+
                 window.draw(buttonShape);
             }
 
             if (textComp) {
-                if (position) {
-                    textComp->text.setPosition(position->position.x + rect->width / 4, position->position.y + rect->height / 4);
-                } else {
-                    textComp->text.setPosition(0, 0);
+                if (textComp->text.getFont()) {
+                    textComp->text.setPosition(rect->x + rect->width / 4, rect->y + rect->height / 4);
+                    window.draw(textComp->text);
                 }
-                window.draw(textComp->text);
             }
         }
-        
+
         window.display();
     }
 

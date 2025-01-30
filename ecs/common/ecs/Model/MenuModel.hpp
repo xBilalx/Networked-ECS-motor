@@ -15,8 +15,8 @@ class MenuModel {
 public:
     MenuModel(Scene& scene, const std::string& backgroundTexture, std::vector<std::tuple<std::string, float, float>> menuItems, sf::Font& font) {
         menuEntity = scene.createEntity();
-        // scene.addComponent<PositionComponent>(menuEntity, 0, 0);
-        // scene.addComponent<RenderComponent>(menuEntity, backgroundTexture, true);
+        scene.addComponent<PositionComponent>(menuEntity, 0, 0);
+        scene.addComponent<RenderComponent>(menuEntity, backgroundTexture, true);
         
         float buttonWidth = 200;
         float buttonHeight = 50;
