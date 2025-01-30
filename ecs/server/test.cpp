@@ -18,55 +18,21 @@
 
 int main() {
     // Regler le problème si on Bind une idClient trop haute
-    sceneManager SceneManager(true, true, false);
+    sceneManager SceneManager(true, false, false);
+
     SceneManager.addScene("test", [](Scene& scene) {
         scene.isServerScene = true;
-        
-        std::size_t player = scene.createEntity(); // Client Local
-        scene.addComponent<InputComponent>(player);
-        scene.addComponent<PositionComponent>(player, 10, 19);
-        scene.addComponent<RenderComponent>(player, "../../game/common/bubble.png", true);
-
-        std::size_t player1 = scene.createEntity(); // Client 1
-        scene.addComponent<InputComponent>(player1);
-        scene.addComponent<PositionComponent>(player1, 100, 500);
-        scene.addComponent<RenderComponent>(player1, "../../game/common/bubble.png", true);
-        scene.addComponent<BindClientComponentTest>(player1, 0);
-
-        std::size_t changeScene = scene.createEntity();
-        scene.addComponent<CoolDownActionComponent>(changeScene, false, 10, [](Scene& em) {
-            em.SceneManager->isNewScene = true;
-            em.SceneManager->setCurrentScene("scene2");
-            std::cout << "Passage a la scene scene2\n";
-        });
+        std::size_t player1 = 0;
+        for (int i = 0; i < 3; i++) {
+            player1 = scene.createEntity(); // Client Local
+            scene.addComponent<InputComponent>(player1);
+            scene.addComponent<PositionComponent>(player1, 10, 19);
+            scene.addComponent<RenderComponent>(player1, "../../game/common/bubble.png", true);
+            scene.addComponent<BindClientComponentTest>(player1, 2);
+        }
     });
-    SceneManager.addScene("scene2", [](Scene& scene) {
-        scene.isServerScene = true;
 
-        std::size_t player1 = scene.createEntity(); // Client 1
-        scene.addComponent<InputComponent>(player1);
-        scene.addComponent<PositionComponent>(player1, 500, 800);
-        scene.addComponent<RenderComponent>(player1, "../../game/common/bubbleGum.png", true);
-        scene.addComponent<BindClientComponentTest>(player1, 0);
-
-        player1 = scene.createEntity(); // Client Local
-        scene.addComponent<InputComponent>(player1);
-        scene.addComponent<PositionComponent>(player1, 10, 19);
-        scene.addComponent<RenderComponent>(player1, "../../game/common/bubble.png", true);
-        scene.addComponent<BindClientComponentTest>(player1, 1);
-
-        player1 = scene.createEntity(); // Client 1
-        scene.addComponent<InputComponent>(player1);
-        scene.addComponent<PositionComponent>(player1, 100, 500);
-        scene.addComponent<RenderComponent>(player1, "../../game/common/bubble.png", true);
-        scene.addComponent<BindClientComponentTest>(player1, 1);
-
-        player1 = scene.createEntity(); // Client 1
-        scene.addComponent<InputComponent>(player1);
-        scene.addComponent<PositionComponent>(player1, 100, 800);
-        scene.addComponent<RenderComponent>(player1, "../../game/common/bubbleGum.png", true);
-    });
     SceneManager.setCurrentScene("test");
-    SceneManager.setServerNetwork("127.0.0.1", 8090, 0.0083);
+    SceneManager.setServerNetwork("127.0.0.1", 8090, 1, 0.0083);
     SceneManager.run();
 }

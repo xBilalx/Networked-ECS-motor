@@ -20,8 +20,11 @@ struct BindClientsTest {
 
 class ServerNetworkSystem {
     public:
-        ServerNetworkSystem(std::string serverIp, uint16_t serverPort, float coolDown = 0) : serverIp(serverIp), serverPort(serverPort), coolDown(coolDown) {
+        ServerNetworkSystem(std::string serverIp, uint16_t serverPort, unsigned int maxClient, float coolDown) : serverIp(serverIp), serverPort(serverPort), maxClient(maxClient), coolDown(coolDown) {
             networkManager.bindSocket(serverIp, serverPort);
+            if (maxClient == 0) {
+                std::cout << "0 clients set\n";
+            }
             setXBindClient(maxClient);
         }
         void setXBindClient(int x) {
@@ -157,7 +160,7 @@ class ServerNetworkSystem {
         NetworkManager networkManager;
         std::vector<std::unique_ptr<BindClientsTest>> bindClients;
 
-        int maxClient = 2;
+        int maxClient;
         float coolDown;
         float currentTime;
         float currentTimeReceiv;
