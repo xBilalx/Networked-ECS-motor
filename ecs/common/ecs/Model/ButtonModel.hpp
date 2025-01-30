@@ -11,16 +11,17 @@
 #include <functional>
 #include <iostream>
 
-
 class ButtonModel {
 public:
-    ButtonModel(Scene& scene, float x, float y, float width, float height, sf::Color color, const std::string& text, sf::Font& font, unsigned int textSize, sf::Color textColor) {
+    ButtonModel(Scene& scene, float x, float y, float width, float height, sf::Color color, 
+                const std::string& text, sf::Font& font, unsigned int textSize, 
+                sf::Color textColor, sf::Color hoverColor) {
         buttonEntity = scene.createEntity();
         scene.addComponent<PositionComponent>(buttonEntity, x, y);
-        scene.addComponent<RectangleComponent>(buttonEntity, x, y, width, height, color); // Ajout de la couleur
-        scene.addComponent<RenderComponent>(buttonEntity, "", true); // Assure que le bouton s'affiche
+        scene.addComponent<RectangleComponent>(buttonEntity, x, y, width, height, color); // Ajout de la couleur du bouton
+        scene.addComponent<RenderComponent>(buttonEntity, "", true); // Assure que le bouton est affiché
         scene.addComponent<TextComponent>(buttonEntity, text, font, textSize, textColor); // Ajout du texte
-        scene.addComponent<HoverComponent>(buttonEntity, color, sf::Color::White); // Gère le survol
+        scene.addComponent<HoverComponent>(buttonEntity, color, hoverColor); // Gestion du survol
     }
 
     std::size_t getEntity() const {
