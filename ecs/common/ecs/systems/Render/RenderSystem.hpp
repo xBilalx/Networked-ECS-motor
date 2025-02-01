@@ -16,48 +16,37 @@ class ISystem
     virtual void update(Scene& scene, float dt) = 0;
 };
 
-class RenderSystem
-{
-    public:
-        void createWindow(unsigned int modeWidth,unsigned int modeHeight, std::string windowName) {
-            window.create(sf::VideoMode(modeWidth, modeHeight), windowName);
-            window.setFramerateLimit(120);
-        }
-        // bool createWindowWithEntity(Scene& em) {
-        //     for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
-        //         std::cout << "_________-->"<< it->first << " a " << it->second.size()  << " composants" << std::endl;
-        //         auto win = it->second.find(std::type_index(typeid(WindowComponent)));
-        //         if (win == it->second.end()) {
-        //             continue;
-        //         }
-        //         WindowComponent *winCmpnt = dynamic_cast<WindowComponent*>(win->second.get());
-        //         if (winCmpnt) {
-        //             window.create(sf::VideoMode(winCmpnt->modeWidth, winCmpnt->modeHeight), winCmpnt->WindowName);
-        //             return true;
-        //         }
-        //     }
-        //     return false;
-        // }
-        sf::RenderWindow& getWindow() {
-            return window;
-        };
+
+
+class RenderSystem {
+public:
+    void createWindow(unsigned int modeWidth, unsigned int modeHeight, std::string windowName) {
+        window.create(sf::VideoMode(modeWidth, modeHeight), windowName);
+        window.setFramerateLimit(120);
+    }
+
+    sf::RenderWindow& getWindow() {
+        return window;
+    }
+
     void update(Scene& scene) {
         window.clear();
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-        // Première passe : afficher le fond en premier
+        std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
+
+        // Première passe : afficher le fond et la grille en premier
         for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
             RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
             PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
 
             if (render) {
-                sf::Vector2u windowSize = window.getSize();
                 sf::Vector2u textureSize = render->texture.getSize();
 
                 if (textureSize.x > 0 && textureSize.y > 0) {
-                    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
-                    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
-                    render->sprite.setScale(scaleX, scaleY);
+                    sf::FloatRect spriteBounds = render->sprite.getGlobalBounds();
+                    // std::cout << "🎯 Affichage du sprite: Taille après transformation: " 
+                    //           << spriteBounds.width << "x" << spriteBounds.height << std::endl;
                 }
 
                 if (position) {
@@ -66,7 +55,12 @@ class RenderSystem
                     render->sprite.setPosition(0, 0);
                 }
 
-                window.draw(render->sprite);
+                // Vérifier si c'est une flèche
+                if (render->pathTexture.toAnsiString().find("arrow") != std::string::npos) {
+                    arrows.push_back({render, position});
+                } else {
+                    window.draw(render->sprite);
+                }
             }
         }
 
@@ -99,11 +93,17 @@ class RenderSystem
             }
         }
 
+        // Troisième passe : afficher les flèches en dernier
+        for (auto& arrow : arrows) {
+            if (arrow.second) {
+                arrow.first->sprite.setPosition(arrow.second->position.x, arrow.second->position.y);
+            }
+            window.draw(arrow.first->sprite);
+        }
+
         window.display();
     }
 
-    protected:
-
-    private:
-        sf::RenderWindow window; // Best way if the window variable would be in WindowComponent ?
+private:
+    sf::RenderWindow window;
 };
