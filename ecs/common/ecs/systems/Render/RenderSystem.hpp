@@ -8,6 +8,8 @@
 #include "../../components/Box/HoverComponent.hpp"
 #include "../../components/Text/TextComponent.hpp"
 #include "../Transform/BounceSystem.hpp"
+#include "../Transform/ArrowMovementSystem.hpp"
+
 
 #include <SFML/Graphics.hpp>
 
@@ -34,7 +36,9 @@ public:
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
         BounceSystem bounceSystem;
+        ArrowMovementSystem arrowMovementSystem;
         bounceSystem.update(scene, 1.0f / 60.0f);
+        arrowMovementSystem.update(scene);
 
         std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
 

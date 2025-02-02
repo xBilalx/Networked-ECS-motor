@@ -2,6 +2,8 @@
 #include "../components/Transform/PositionComponent.hpp"
 #include "../components/Render/RenderComponent.hpp"
 #include "../components/Box/RectangleComponent.hpp"
+#include "../components/Grid/GridComponent.hpp"
+
 
 #include "../scene/sceneManager.hpp"
 #include <vector>
@@ -26,10 +28,14 @@ public:
         float offsetX = (windowSize.x - gridWidth) / 2.0f;
         float offsetY = (windowSize.y - gridHeight) / 2.0f;
 
+        // Ajout du GridComponent à la scène
+        scene.addComponent<GridComponent>(gridEntity, rows, cols, cellSize, offsetX, offsetY);
+
         std::cout << "✅ Grille initialisée avec " << rows << " lignes et " << cols << " colonnes." << std::endl;
         std::cout << "📏 Taille des cellules: " << cellSize << " px" << std::endl;
         std::cout << "📍 Position de la grille: X=" << offsetX << ", Y=" << offsetY << std::endl;
 
+        // 🔥 Réintégration de la création des cellules
         for (int row = 0; row < rows; ++row) {
             for (int col = 0; col < cols; ++col) {
                 float cellX = offsetX + col * cellSize;
