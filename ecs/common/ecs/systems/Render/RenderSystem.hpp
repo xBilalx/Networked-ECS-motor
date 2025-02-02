@@ -9,6 +9,7 @@
 #include "../../components/Text/TextComponent.hpp"
 #include "../Transform/BounceSystem.hpp"
 #include "../Transform/ArrowMovementSystem.hpp"
+#include "../Transform/TokenPlacementSystem.hpp"
 
 
 #include <SFML/Graphics.hpp>
@@ -37,34 +38,34 @@ public:
 
         BounceSystem bounceSystem;
         ArrowMovementSystem arrowMovementSystem;
+        TokenPlacementSystem tokenPlacementSystem;
+        
         bounceSystem.update(scene, 1.0f / 60.0f);
         arrowMovementSystem.update(scene);
+        tokenPlacementSystem.update(scene);
 
         std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
+        std::vector<std::pair<RenderComponent*, PositionComponent*>> tokens;
 
         // Première passe : afficher le fond et la grille en premier
         for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
             RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
             PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
+            TokenComponent* token = scene.getComponent<TokenComponent>(it->first);
 
             if (render) {
-                sf::Vector2u textureSize = render->texture.getSize();
-
-                if (textureSize.x > 0 && textureSize.y > 0) {
-                    sf::FloatRect spriteBounds = render->sprite.getGlobalBounds();
-                }
-
                 if (position) {
                     render->sprite.setPosition(position->position.x, position->position.y);
                 } else {
                     render->sprite.setPosition(0, 0);
                 }
 
-                // Vérifier si c'est une flèche
                 if (render->pathTexture.toAnsiString().find("arrow") != std::string::npos) {
                     arrows.push_back({render, position});
+                } else if (token) {
+                    tokens.push_back({render, position}); // Stocker les jetons pour les afficher en dernier
                 } else {
-                    window.draw(render->sprite); // On affiche aussi la grille ici
+                    window.draw(render->sprite); 
                 }
             }
         }
@@ -98,7 +99,15 @@ public:
             }
         }
 
-        // Troisième passe : afficher les flèches en dernier
+        // Troisième passe : afficher les jetons avant la flèche
+        for (auto& token : tokens) {
+            if (token.second) {
+                token.first->sprite.setPosition(token.second->position.x, token.second->position.y);
+            }
+            window.draw(token.first->sprite);
+        }
+
+        // Quatrième passe : afficher les flèches en dernier
         for (auto& arrow : arrows) {
             if (arrow.second) {
                 arrow.first->sprite.setPosition(arrow.second->position.x, arrow.second->position.y);
