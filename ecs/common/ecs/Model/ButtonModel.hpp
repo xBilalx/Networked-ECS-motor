@@ -18,10 +18,10 @@ public:
                 sf::Color textColor, sf::Color hoverColor) {
         buttonEntity = scene.createEntity();
         scene.addComponent<PositionComponent>(buttonEntity, x, y);
-        scene.addComponent<RectangleComponent>(buttonEntity, x, y, width, height, color); // Ajout de la couleur du bouton
-        scene.addComponent<RenderComponent>(buttonEntity, "", true); // Assure que le bouton est affiché
-        scene.addComponent<TextComponent>(buttonEntity, text, font, textSize, textColor); // Ajout du texte
-        scene.addComponent<HoverComponent>(buttonEntity, color, hoverColor); // Gestion du survol
+        scene.addComponent<RectangleComponent>(buttonEntity, x, y, width, height, color);
+        scene.addComponent<RenderComponent>(buttonEntity, "", true);
+        scene.addComponent<TextComponent>(buttonEntity, text, font, textSize, textColor);
+        scene.addComponent<HoverComponent>(buttonEntity, color, hoverColor);
     }
 
     std::size_t getEntity() const {

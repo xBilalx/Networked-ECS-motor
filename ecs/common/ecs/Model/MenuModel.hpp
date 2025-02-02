@@ -20,7 +20,6 @@ public:
         scene.addComponent<PositionComponent>(menuEntity, 0, 0);
         scene.addComponent<RenderComponent>(menuEntity, backgroundTexture, true);
         
-        // Récupération du RenderSystem depuis SceneManager
         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
         sf::Vector2u windowSize = renderSystem.getWindow().getSize();
     

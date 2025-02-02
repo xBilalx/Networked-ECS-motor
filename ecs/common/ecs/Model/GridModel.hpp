@@ -19,7 +19,6 @@ public:
         scene.addComponent<PositionComponent>(gridEntity, 0, 0);
         scene.addComponent<RenderComponent>(gridEntity, backgroundTexture, true);
 
-        // Récupération du RenderSystem depuis SceneManager
         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
         sf::Vector2u windowSize = renderSystem.getWindow().getSize();
         
@@ -27,15 +26,7 @@ public:
         float gridHeight = rows * cellSize;
         float offsetX = (windowSize.x - gridWidth) / 2.0f;
         float offsetY = (windowSize.y - gridHeight) / 2.0f;
-
-        // Ajout du GridComponent à la scène
         scene.addComponent<GridComponent>(gridEntity, rows, cols, cellSize, offsetX, offsetY);
-
-        std::cout << "✅ Grille initialisée avec " << rows << " lignes et " << cols << " colonnes." << std::endl;
-        std::cout << "📏 Taille des cellules: " << cellSize << " px" << std::endl;
-        std::cout << "📍 Position de la grille: X=" << offsetX << ", Y=" << offsetY << std::endl;
-
-        // 🔥 Réintégration de la création des cellules
         for (int row = 0; row < rows; ++row) {
             for (int col = 0; col < cols; ++col) {
                 float cellX = offsetX + col * cellSize;

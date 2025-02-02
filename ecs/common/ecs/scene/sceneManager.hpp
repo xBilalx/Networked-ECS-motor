@@ -64,7 +64,7 @@ private:
     void initializeWindow() {
         if (isLocalClient || !isServer) {
             renderSystem.createWindow(1920, 1080, "ECS Game Window");
-            std::cout << "✅ Fenêtre créée avec succès: 1920x1080" << std::endl;
+            std::cout << "Fenêtre créée avec succès: 1920x1080" << std::endl;
         }
     }
 

@@ -27,7 +27,7 @@ public:
 
         sf::Vector2u textureSize = renderComponent.texture.getSize();
         if (textureSize.x == 0 || textureSize.y == 0) {
-            std::cerr << "⚠️ Erreur: La texture de la flèche n'a pas été chargée correctement !" << std::endl;
+            std::cerr << "Erreur: La texture de la flèche n'a pas été chargée correctement !" << std::endl;
             return;
         }
 

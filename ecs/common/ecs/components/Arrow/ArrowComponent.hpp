@@ -3,7 +3,7 @@
 #include "../Component.hpp"
 
 struct ArrowComponent : public Component {
-    int currentColumn; // Index de la colonne actuelle
+    int currentColumn;
     float cellSize;
     int maxColumns;
 

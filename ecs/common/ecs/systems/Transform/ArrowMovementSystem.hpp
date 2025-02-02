@@ -9,20 +9,18 @@
 class ArrowMovementSystem {
 public:
     void update(Scene& scene) {
-        static std::unordered_map<int, bool> keyPressedState; // Stocke l'état des touches
+        static std::unordered_map<int, bool> keyPressedState;
 
         for (auto& entity : scene.entities1) {
             PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
             ArrowComponent* arrow = scene.getComponent<ArrowComponent>(entity.first);
-            GridComponent* grid = scene.getComponent<GridComponent>(0); // Supposons que la grille est stockée avec `ID=0`
+            GridComponent* grid = scene.getComponent<GridComponent>(0);
             InputComponent* input = scene.getComponent<InputComponent>(entity.first);
 
             if (position && arrow && grid && input) {
-                // Désactiver le mouvement vertical
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
                     return;
                 }
-
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
                     if (!keyPressedState[sf::Keyboard::Left] && arrow->currentColumn > 0) {
                         arrow->currentColumn--;
@@ -40,8 +38,6 @@ public:
                 } else {
                     keyPressedState[sf::Keyboard::Right] = false;
                 }
-
-                // Mise à jour de la position X uniquement
                 position->position.x = grid->columnPositions[arrow->currentColumn];
             }
         }

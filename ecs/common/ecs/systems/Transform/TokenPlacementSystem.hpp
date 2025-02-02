@@ -7,16 +7,27 @@
 #include "../../components/Input/InputComponent.hpp"
 #include "../../components/Token/TokenComponent.hpp"
 #include "../../components/Render/RenderComponent.hpp"
+#include "../../components/GameState/GameStateComponent.hpp"
 #include "../../Model/TokenModel.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
+
 
 
 class TokenPlacementSystem {
 public:
     void update(Scene& scene) {
         static bool spacePressed = false;
-        static int currentPlayer = 1; // 1 = Joueur 1, 2 = Joueur 2
+        
+        GameStateComponent* gameState = scene.getComponent<GameStateComponent>(0);
+        if (!gameState) {
+            std::cerr << "ERREUR: GameStateComponent introuvable !" << std::endl;
+            return;
+        }
+        if (gameState->gameOver) {
+            std::cerr << "🎉 La partie est terminée, plus de placements possibles !" << std::endl;
+            return;
+        }
 
         for (auto& entity : scene.entities1) {
             PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
@@ -29,20 +40,28 @@ public:
 
                     int row = findAvailableRow(grid, arrow->currentColumn);
                     if (row == -1) {
-                        std::cerr << "⚠️ Colonne pleine !" << std::endl;
+                        std::cerr << "Colonne pleine !" << std::endl;
                         return;
                     }
 
                     float tokenX = grid->columnPositions[arrow->currentColumn];
                     float tokenY = grid->gridOffsetY + row * grid->cellSize + (grid->cellSize / 2.0f);
 
+                    int currentPlayer = gameState->currentPlayer;
                     std::string texturePath = (currentPlayer == 1) ? "../assets/blue_bubble.png" : "../assets/yellow_bubble.png";
                     TokenModel token(scene, texturePath, tokenX, tokenY, currentPlayer);
 
-                    grid->gridState[row][arrow->currentColumn] = currentPlayer; // Mise à jour de la grille
-                    checkVictory(grid, row, arrow->currentColumn, currentPlayer); // Vérifier si le joueur a gagné
+                    grid->gridState[row][arrow->currentColumn] = currentPlayer;
 
-                    currentPlayer = (currentPlayer == 1) ? 2 : 1;
+                    if (checkVictory(grid, row, arrow->currentColumn, currentPlayer)) {
+                        gameState->endGame(currentPlayer);
+                        updatePlayerTurnText(scene, "🎉 Player " + std::to_string(currentPlayer) + " won!");
+                        return;
+                    }
+
+                    gameState->switchPlayer();
+                    updatePlayerTurnText(scene, (gameState->currentPlayer == 1) ? "It's Player Blue's turn" : "It's Player Yellow's turn");
+                    updateArrowTexture(scene, gameState->currentPlayer);
                 }
             }
         }
@@ -62,13 +81,11 @@ private:
         return -1;
     }
 
-    void checkVictory(GridComponent* grid, int row, int col, int player) {
-        if (checkDirection(grid, row, col, player, 1, 0) ||
-            checkDirection(grid, row, col, player, 0, 1) ||
-            checkDirection(grid, row, col, player, 1, 1) ||
-            checkDirection(grid, row, col, player, 1, -1)) {
-            std::cout << "🎉 Joueur " << player << " a gagné !" << std::endl;
-        }
+    bool checkVictory(GridComponent* grid, int row, int col, int player) {
+        return checkDirection(grid, row, col, player, 1, 0) ||
+               checkDirection(grid, row, col, player, 0, 1) ||
+               checkDirection(grid, row, col, player, 1, 1) ||
+               checkDirection(grid, row, col, player, 1, -1);
     }
 
     bool checkDirection(GridComponent* grid, int row, int col, int player, int dRow, int dCol) {
@@ -92,5 +109,29 @@ private:
             }
         }
         return count;
+    }
+
+    void updateArrowTexture(Scene& scene, int currentPlayer) {
+        for (auto& entity : scene.entities1) {
+            ArrowComponent* arrow = scene.getComponent<ArrowComponent>(entity.first);
+            RenderComponent* render = scene.getComponent<RenderComponent>(entity.first);
+
+            if (arrow && render) {
+                std::string newTexture = (currentPlayer == 1) ? "../assets/blue_arrow.png" : "../assets/yellow_arrow.png";
+                if (!render->texture.loadFromFile(newTexture)) {
+                    std::cerr << "Impossible de charger la texture de la flèche: " << newTexture << std::endl;
+                }
+                render->sprite.setTexture(render->texture);
+            }
+        }
+    }
+
+    void updatePlayerTurnText(Scene& scene, const std::string& text) {
+        for (auto& entity : scene.entities1) {
+            TextComponent* textComponent = scene.getComponent<TextComponent>(entity.first);
+            if (textComponent) {
+                textComponent->text.setString(text);
+            }
+        }
     }
 };
