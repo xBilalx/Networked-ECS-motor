@@ -17,23 +17,8 @@ class RenderSystem
     public:
         void createWindow(unsigned int modeWidth,unsigned int modeHeight, std::string windowName) {
             window.create(sf::VideoMode(modeWidth, modeHeight), windowName);
-            window.setFramerateLimit(120);
+            window.setFramerateLimit(60);
         }
-        // bool createWindowWithEntity(Scene& em) {
-        //     for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
-        //         std::cout << "_________-->"<< it->first << " a " << it->second.size()  << " composants" << std::endl;
-        //         auto win = it->second.find(std::type_index(typeid(WindowComponent)));
-        //         if (win == it->second.end()) {
-        //             continue;
-        //         }
-        //         WindowComponent *winCmpnt = dynamic_cast<WindowComponent*>(win->second.get());
-        //         if (winCmpnt) {
-        //             window.create(sf::VideoMode(winCmpnt->modeWidth, winCmpnt->modeHeight), winCmpnt->WindowName);
-        //             return true;
-        //         }
-        //     }
-        //     return false;
-        // }
         sf::RenderWindow& getWindow() {
             return window;
         };

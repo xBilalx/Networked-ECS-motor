@@ -28,7 +28,7 @@ public:
         if (win.isOpen() && win.hasFocus()) {
             for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
                 InputComponent* input = scene.getComponent<InputComponent>(it->first);
-                BindClientComponent* bind = scene.getComponent<BindClientComponent>(it->first);
+                BindClientComponentTest* bind = scene.getComponent<BindClientComponentTest>(it->first);
                 if (input && !bind) {
                     input->moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
                     input->moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
