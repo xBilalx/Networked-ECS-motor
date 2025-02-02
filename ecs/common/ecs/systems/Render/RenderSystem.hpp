@@ -7,6 +7,7 @@
 #include "../../components/Box/RectangleComponent.hpp"
 #include "../../components/Box/HoverComponent.hpp"
 #include "../../components/Text/TextComponent.hpp"
+#include "../Transform/BounceSystem.hpp"
 
 #include <SFML/Graphics.hpp>
 
@@ -15,7 +16,6 @@ class ISystem
 {
     virtual void update(Scene& scene, float dt) = 0;
 };
-
 
 
 class RenderSystem {
@@ -33,6 +33,9 @@ public:
         window.clear();
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
+        BounceSystem bounceSystem;
+        bounceSystem.update(scene, 1.0f / 60.0f);
+
         std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
 
         // Première passe : afficher le fond et la grille en premier
@@ -45,8 +48,6 @@ public:
 
                 if (textureSize.x > 0 && textureSize.y > 0) {
                     sf::FloatRect spriteBounds = render->sprite.getGlobalBounds();
-                    // std::cout << "🎯 Affichage du sprite: Taille après transformation: " 
-                    //           << spriteBounds.width << "x" << spriteBounds.height << std::endl;
                 }
 
                 if (position) {
@@ -59,7 +60,7 @@ public:
                 if (render->pathTexture.toAnsiString().find("arrow") != std::string::npos) {
                     arrows.push_back({render, position});
                 } else {
-                    window.draw(render->sprite);
+                    window.draw(render->sprite); // On affiche aussi la grille ici
                 }
             }
         }
