@@ -5,15 +5,15 @@
 struct BallComponent : public Component {
     sf::Vector2f velocity;
     float speed;
-    float initialSpeed; // Ajout de la vitesse initiale
+    float initialSpeed;  // Valeur de départ de la vitesse
     float respawnTime;
     bool isRespawning;
     float screenWidth;
     float screenHeight;
 
     BallComponent(float speed, float screenWidth, float screenHeight)
-        : speed(speed), initialSpeed(speed), // initialSpeed est initialisé avec speed
+        : speed(speed), initialSpeed(speed),
           velocity(sf::Vector2f(-speed, 0)),
-          respawnTime(0.0f), isRespawning(false), 
+          respawnTime(0.0f), isRespawning(false),
           screenWidth(screenWidth), screenHeight(screenHeight) {}
 };
