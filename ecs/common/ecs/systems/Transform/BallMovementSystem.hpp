@@ -15,7 +15,6 @@
 #include <complex>
 
 
-
 class BallMovementSystem {
 public:
     // dt représente le delta time en secondes
