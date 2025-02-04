@@ -21,7 +21,7 @@ public:
         
         GameStateComponent* gameState = scene.getComponent<GameStateComponent>(0);
         if (!gameState) {
-            std::cerr << "ERREUR: GameStateComponent introuvable !" << std::endl;
+            // std::cerr << "ERREUR: GameStateComponent introuvable !" << std::endl;
             return;
         }
         if (gameState->gameOver) {

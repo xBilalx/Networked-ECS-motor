@@ -7,9 +7,15 @@
 #include "../../components/Box/RectangleComponent.hpp"
 #include "../../components/Box/HoverComponent.hpp"
 #include "../../components/Text/TextComponent.hpp"
+#include "../../components/Circle/CircleComponent.hpp"
+
 #include "../Transform/BounceSystem.hpp"
 #include "../Transform/ArrowMovementSystem.hpp"
 #include "../Transform/TokenPlacementSystem.hpp"
+#include "../Transform/PaddleMovementSystem.hpp"
+#include "../Transform/MovementSystem.hpp"
+
+
 
 
 #include <SFML/Graphics.hpp>
@@ -19,7 +25,6 @@ class ISystem
 {
     virtual void update(Scene& scene, float dt) = 0;
 };
-
 
 class RenderSystem {
 public:
@@ -39,19 +44,21 @@ public:
         BounceSystem bounceSystem;
         ArrowMovementSystem arrowMovementSystem;
         TokenPlacementSystem tokenPlacementSystem;
-        
+
         bounceSystem.update(scene, 1.0f / 60.0f);
         arrowMovementSystem.update(scene);
         tokenPlacementSystem.update(scene);
 
         std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
         std::vector<std::pair<RenderComponent*, PositionComponent*>> tokens;
+        std::vector<std::pair<CircleComponent*, PositionComponent*>> balls;
 
-        // Première passe : afficher le fond et la grille en premier
+        // 🔹 Première passe : afficher le fond et la grille en premier
         for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
             RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
             PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
             TokenComponent* token = scene.getComponent<TokenComponent>(it->first);
+            CircleComponent* circle = scene.getComponent<CircleComponent>(it->first);
 
             if (render) {
                 if (position) {
@@ -63,14 +70,19 @@ public:
                 if (render->pathTexture.toAnsiString().find("arrow") != std::string::npos) {
                     arrows.push_back({render, position});
                 } else if (token) {
-                    tokens.push_back({render, position}); // Stocker les jetons pour les afficher en dernier
+                    tokens.push_back({render, position});
                 } else {
-                    window.draw(render->sprite); 
+                    window.draw(render->sprite);
                 }
+            }
+
+            // Stocker les cercles pour affichage
+            if (circle) {
+                balls.push_back({circle, position});
             }
         }
 
-        // Deuxième passe : afficher les boutons et le texte après
+        // 🔹 Deuxième passe : afficher les boutons et le texte après
         for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
             RectangleComponent* rect = scene.getComponent<RectangleComponent>(it->first);
             HoverComponent* hover = scene.getComponent<HoverComponent>(it->first);
@@ -99,7 +111,15 @@ public:
             }
         }
 
-        // Troisième passe : afficher les jetons avant la flèche
+        // 🔹 Troisième passe : afficher les cercles (balle)
+        for (auto& ball : balls) {
+            if (ball.second) {
+                ball.first->circle.setPosition(ball.second->position.x, ball.second->position.y);
+            }
+            window.draw(ball.first->circle);
+        }
+
+        // 🔹 Quatrième passe : afficher les jetons avant la flèche
         for (auto& token : tokens) {
             if (token.second) {
                 token.first->sprite.setPosition(token.second->position.x, token.second->position.y);
@@ -107,7 +127,7 @@ public:
             window.draw(token.first->sprite);
         }
 
-        // Quatrième passe : afficher les flèches en dernier
+        // 🔹 Cinquième passe : afficher les flèches en dernier
         for (auto& arrow : arrows) {
             if (arrow.second) {
                 arrow.first->sprite.setPosition(arrow.second->position.x, arrow.second->position.y);
