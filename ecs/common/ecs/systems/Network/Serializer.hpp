@@ -49,5 +49,7 @@ public:
         NEXT,
         END,
         CLEAR,
+        RECTANGLE,
+        TOKEN,
     };
 };

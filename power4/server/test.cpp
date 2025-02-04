@@ -28,9 +28,10 @@
 // }
 
 int main() {
-    sceneManager SceneManager(true, true);
+    sceneManager SceneManager(true, false);
 
     SceneManager.addScene("Power4Scene", [](Scene& scene) {
+        scene.isServerScene = true;
         float cellSize = 80.0f;
         GridModel grid(scene, "../assets/menu_background.png", 6, 7, cellSize);
         ArrowModel arrow(scene, "../assets/blue_arrow.png", cellSize);
@@ -42,6 +43,6 @@ int main() {
     });
 
     SceneManager.setCurrentScene("Power4Scene");
-    SceneManager.setServerNetwork("127.0.0.1", 8090, 0.0083);
+    SceneManager.setServerNetwork("127.0.0.1", 8090, 1, 0.0083);
     SceneManager.run();
 }

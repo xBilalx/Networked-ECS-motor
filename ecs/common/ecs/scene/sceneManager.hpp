@@ -11,7 +11,6 @@
 #include "../systems/Network/ServerNetwork.hpp"
 #include "../systems/Network/ClientNetworkSystem.hpp"
 #include "../systems/Time/TimeSystem.hpp"
-
 #include <functional>
 
 class sceneManager {
@@ -30,11 +29,12 @@ public:
         initSceneLambda(*scene);
     }
 
-    void setServerNetwork(std::string ip_, unsigned short int port_, float tickRate_) {
-        ip = ip_;
-        port = port_;
-        tickRate = tickRate_;
-    }
+        void setServerNetwork(std::string ip_, unsigned short int port_, int nbrClients_ ,float tickRate_) {
+            ip = ip_;
+            port = port_;
+            nbrClient = nbrClients_;
+            tickRate = tickRate_;
+        }
 
     void setCurrentScene(std::string scene) {
         currentScene = scene;
@@ -42,7 +42,7 @@ public:
 
     void run() {
         if (isServer) {
-            serverNetworkSystem = std::make_unique<ServerNetworkSystem>(ip, port, tickRate);
+            serverNetworkSystem = std::make_unique<ServerNetworkSystem>(ip, port, nbrClient, tickRate);
         }
 
         int check = 0;
@@ -59,6 +59,9 @@ public:
     RenderSystem& getRenderSystem() {
         return renderSystem;
     }
+
+    bool isNewScene; // A mettre en privée
+
 
 private:
     void initializeWindow() {
@@ -83,23 +86,43 @@ private:
         TimeSystem timeSystem;
         MovementSystem movementSystem;
         sf::Clock clock;
-
+        bool isServerScene = em.isServerScene;
         sf::RenderWindow& win = renderSystem.getWindow();
 
-        while (1) {
-            float dt = clock.restart().asSeconds();
-            timeSystem.update(em, dt);
-            if (isLocalClient) {
-                inputSystem.updateForServer(em, win);
-            }
-            movementSystem.update(em);
-            renderSystem.update(em);
+        // il faudra les ajouter les systemes de facon générique, parce qu'on à pas besoin de ces systemes souvent par exemple !
+        BounceSystem bounceSystem;
+        ArrowMovementSystem arrowMovementSystem;
+        TokenPlacementSystem tokenPlacementSystem;
 
-            if (isNewScene) {
-                return true;
+        while (1) {
+
+                float dt = clock.restart().asSeconds();
+                if (debug) {
+                    std::cout << "Time for loop -> " << dt << "s\n"; 
+                }
+                if (isServerScene) {
+                    serverNetworkSystem->dataFromClients(em);
+                }            
+                timeSystem.update(em, dt);
+                if (isLocalClient) {
+                    inputSystem.updateForServer(em, win);
+                }
+                movementSystem.update(em);
+                arrowMovementSystem.update(em);
+                tokenPlacementSystem.update(em);
+
+                if (isServerScene) {
+                    serverNetworkSystem->dataToClients(em, dt);
+                }
+                renderSystem.update(em);
+                
+                if (isNewScene) {
+                    serverNetworkSystem->sendClearScene(em, dt);
+                    return true;
+                }
             }
         }
-    }
+
 
     bool runSceneClient(Scene &em) {
         InputSystem inputSystem;
@@ -108,12 +131,26 @@ private:
         ClientNetworkSystem clientNetworkSystem(em.serverAdress, em.port, em.tickRate);
         sf::Clock clock;
         sf::RenderWindow& win = renderSystem.getWindow();
+        bool chechk = false;
+        bool isNetworked = em.isNetworked;
 
         while (win.isOpen()) {
             float dt = clock.restart().asSeconds();
+                if (debug) {
+                    std::cout << "Time for loop -> " << dt << "s\n"; 
+                }
+                if (isNetworked) {
+                    if (!chechk) {
+                        clientNetworkSystem.test(); // Envoie un paquet CONNECT mais a upgrade
+                        chechk = true;
+                    }
+                }
             timeSystem.update(em, dt);
+                if (isNetworked) {
+                    clientNetworkSystem.dataToServer(em, inputSystem, dt);
+                    clientNetworkSystem.dataFromServer(em);
+                }
             renderSystem.update(em);
-            win.display();
             inputSystem.update(em, win);
             movementSystem.update(em);
 
@@ -124,18 +161,18 @@ private:
         return false;
     }
 
-    std::unordered_map<std::string, std::function<void(Scene&)>> initScenes;
-    std::unordered_map<std::string, std::shared_ptr<Scene>> scenes;
-    std::string currentScene;
-    RenderSystem renderSystem;
-    std::unique_ptr<ServerNetworkSystem> serverNetworkSystem;
 
-    std::string ip = "127.0.0.1";
-    std::uint16_t port = 8089;
-    float tickRate = 0.0083;
-    bool isServer;
-    bool debug;
-    bool isLocalClient;
-    bool isNewScene;
+        std::unordered_map<std::string, std::function<void (Scene&)>> initScenes;
+        std::unordered_map<std::string, std::shared_ptr<Scene>> scenes;
+        std::string currentScene;
+        RenderSystem renderSystem;
+        std::unique_ptr<ServerNetworkSystem> serverNetworkSystem;
 
+        std::string ip = "127.0.0.1";
+        std::uint16_t port = 8089;
+        int nbrClient = 0;
+        float tickRate = 0.01667;
+        bool isServer; // applique les sytemes
+        bool debug;  // debug ⚠️ Pas de logique encore implémenté
+        bool isLocalClient; // Local Client Only for servers  si il y a un client local ⚠️ Pas de logique encore implémenté
 };

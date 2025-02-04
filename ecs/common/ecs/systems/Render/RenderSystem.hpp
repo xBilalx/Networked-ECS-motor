@@ -20,12 +20,11 @@ class ISystem
     virtual void update(Scene& scene, float dt) = 0;
 };
 
-
 class RenderSystem {
 public:
     void createWindow(unsigned int modeWidth, unsigned int modeHeight, std::string windowName) {
         window.create(sf::VideoMode(modeWidth, modeHeight), windowName);
-        window.setFramerateLimit(120);
+        window.setFramerateLimit(60);
     }
 
     sf::RenderWindow& getWindow() {
@@ -36,13 +35,9 @@ public:
         window.clear();
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-        BounceSystem bounceSystem;
-        ArrowMovementSystem arrowMovementSystem;
-        TokenPlacementSystem tokenPlacementSystem;
-        
-        bounceSystem.update(scene, 1.0f / 60.0f);
-        arrowMovementSystem.update(scene);
-        tokenPlacementSystem.update(scene);
+        // BounceSystem bounceSystem;
+        // ArrowMovementSystem arrowMovementSystem;
+        // TokenPlacementSystem tokenPlacementSystem;
 
         std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
         std::vector<std::pair<RenderComponent*, PositionComponent*>> tokens;
@@ -114,7 +109,6 @@ public:
             }
             window.draw(arrow.first->sprite);
         }
-
         window.display();
     }
 

@@ -11,3 +11,10 @@ struct BindClientComponent : public Component {
         bool ManagePosByServ = true;
         BindClientComponent() {}
 };
+
+struct BindClientComponentTest : public Component {
+    public:
+        int bindId;
+        bool ManagePosByServ = true;
+        BindClientComponentTest(int bindId) : bindId(bindId) {}
+};
