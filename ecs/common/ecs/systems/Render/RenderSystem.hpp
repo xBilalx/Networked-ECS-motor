@@ -13,7 +13,8 @@
 #include "../Transform/ArrowMovementSystem.hpp"
 #include "../Transform/TokenPlacementSystem.hpp"
 #include "../Transform/PaddleMovementSystem.hpp"
-#include "../Transform/MovementSystem.hpp"
+#include "../Transform/BallMovementSystem.hpp"
+
 
 
 
@@ -46,11 +47,13 @@ public:
         ArrowMovementSystem arrowMovementSystem;
         TokenPlacementSystem tokenPlacementSystem;
         PaddleMovementSystem paddleMovementSystem;
-        
+        BallMovementSystem ballMovementSystem;
+
         bounceSystem.update(scene, 1.0f / 60.0f);
         arrowMovementSystem.update(scene);
         tokenPlacementSystem.update(scene);
         paddleMovementSystem.update(scene);
+        ballMovementSystem.update(scene, 1.0f / 60.0f);
 
         std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
         std::vector<std::pair<RenderComponent*, PositionComponent*>> tokens;

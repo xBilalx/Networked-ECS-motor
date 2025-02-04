@@ -15,61 +15,62 @@
 class PaddleMovementSystem {
 public:
     void update(Scene& scene) {
-        static std::unordered_map<int, bool> keyPressedState;
         std::cerr << "🛠 Mise à jour de PaddleMovementSystem\n";
 
+        // Parcours de chaque entité possédant les composants nécessaires
         for (auto& entity : scene.entities1) {
             PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
             PaddleComponent* paddle = scene.getComponent<PaddleComponent>(entity.first);
-            PlayerInputComponent* input = scene.getComponent<PlayerInputComponent>(entity.first); // ✅ Remplace `InputComponent`
+            PlayerInputComponent* input = scene.getComponent<PlayerInputComponent>(entity.first);
 
             if (position && paddle && input) {
                 float paddleSpeed = paddle->speed;
-                float paddleLeft = position->position.x;
-                float paddleRight = position->position.x + paddle->width;
-                float paddleTop = position->position.y;
-                float paddleBottom = position->position.y + paddle->height;
 
                 std::cerr << "🔹 Paddle détecté (ID: " << paddle->playerId 
                           << ") | X: " << position->position.x 
                           << " | Y: " << position->position.y << "\n";
 
-                // ✅ Vérifier les entrées en fonction du `playerId`
                 bool moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
 
-                // 🔹 Joueur 1 : "A" (gauche), "D" (droite), "W" (haut), "S" (bas)
+                // Association des touches en fonction du joueur
                 if (input->playerId == 1) {
                     moveLeft  = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
                     moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
                     moveUp    = sf::Keyboard::isKeyPressed(sf::Keyboard::W);
                     moveDown  = sf::Keyboard::isKeyPressed(sf::Keyboard::S);
                 }
-
-                // 🔹 Joueur 2 : Flèche gauche (gauche), Flèche droite (droite), Flèche haut (haut), Flèche bas (bas)
-                if (input->playerId == 2) {
+                else if (input->playerId == 2) {
                     moveLeft  = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
                     moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
                     moveUp    = sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
                     moveDown  = sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
                 }
 
-                // ✅ Appliquer les mouvements UNIQUEMENT au bon joueur
-                if (moveLeft) {
+                // Déplacement horizontal
+                if (moveLeft && position->position.x > paddle->minX) {
                     position->position.x -= paddleSpeed;
                     std::cerr << "⬅️ Joueur " << paddle->playerId << " va à gauche\n";
                 }
-                if (moveRight) {
+                if (moveRight && position->position.x < paddle->maxX) {
                     position->position.x += paddleSpeed;
                     std::cerr << "➡️ Joueur " << paddle->playerId << " va à droite\n";
                 }
-                if (moveUp) {
+
+                // Déplacement vertical
+                // La position représente le haut du paddle ; 
+                // pour que le bas touche le bas de la fenêtre, la position Y peut aller jusqu'à maxY = windowSize.y - height.
+                if (moveUp && position->position.y > paddle->minY) {
                     position->position.y -= paddleSpeed;
                     std::cerr << "⬆️ Joueur " << paddle->playerId << " monte\n";
                 }
-                if (moveDown) {
+                if (moveDown && position->position.y < paddle->maxY) {
                     position->position.y += paddleSpeed;
                     std::cerr << "⬇️ Joueur " << paddle->playerId << " descend\n";
                 }
+
+                // Application finale du clamp pour s'assurer que la position reste dans les limites autorisées
+                position->position.x = std::clamp(position->position.x, paddle->minX, paddle->maxX);
+                position->position.y = std::clamp(position->position.y, paddle->minY, paddle->maxY);
             }
         }
     }
