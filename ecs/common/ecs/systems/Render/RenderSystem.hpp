@@ -26,9 +26,6 @@ class ISystem
     virtual void update(Scene& scene, float dt) = 0;
 };
 
-
-
-
 class RenderSystem {
 public:
     void createWindow(unsigned int modeWidth, unsigned int modeHeight, std::string windowName) {
@@ -39,122 +36,125 @@ public:
     sf::RenderWindow& getWindow() {
         return window;
     }
-void update(Scene& scene) {
-    window.clear();
-    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-    BounceSystem bounceSystem;
-    ArrowMovementSystem arrowMovementSystem;
-    TokenPlacementSystem tokenPlacementSystem;
-    
-    bounceSystem.update(scene, 1.0f / 60.0f);
-    arrowMovementSystem.update(scene);
-    tokenPlacementSystem.update(scene);
-    // std::cerr << "🛠 Début de RenderSystem::update()\n";
+    void update(Scene& scene) {
+        window.clear();
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-    std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
-    std::vector<std::pair<RenderComponent*, PositionComponent*>> tokens;
-    std::vector<std::pair<CircleComponent*, PositionComponent*>> balls;
+        // Mise à jour des systèmes
+        BounceSystem bounceSystem;
+        ArrowMovementSystem arrowMovementSystem;
+        TokenPlacementSystem tokenPlacementSystem;
+        PaddleMovementSystem paddleMovementSystem;
+        
+        bounceSystem.update(scene, 1.0f / 60.0f);
+        arrowMovementSystem.update(scene);
+        tokenPlacementSystem.update(scene);
+        paddleMovementSystem.update(scene);
 
-    // std::cerr << "🔍 Vérification des entités (Première passe : Fond et Grille)\n";
+        std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
+        std::vector<std::pair<RenderComponent*, PositionComponent*>> tokens;
+        std::vector<std::pair<CircleComponent*, PositionComponent*>> balls;
+        std::vector<std::pair<PaddleComponent*, PositionComponent*>> paddles;
 
-    for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
-        // std::cerr << "   ▶ Traitement de l'entité : " << it->first << "\n";
+        // 🔹 Première passe : affichage des éléments de base (ligne centrale, autres éléments fixes)
+        for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+            RectangleComponent* rect = scene.getComponent<RectangleComponent>(it->first);
+            RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
+            PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
+            TokenComponent* token = scene.getComponent<TokenComponent>(it->first);
+            CircleComponent* circle = scene.getComponent<CircleComponent>(it->first);
+            PaddleComponent* paddle = scene.getComponent<PaddleComponent>(it->first);
 
-        RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
-        PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
-        TokenComponent* token = scene.getComponent<TokenComponent>(it->first);
-        CircleComponent* circle = scene.getComponent<CircleComponent>(it->first);
-
-        if (render) {
-            // std::cerr << "     ✅ RenderComponent détecté\n";
-            if (position) {
-                render->sprite.setPosition(position->position.x, position->position.y);
-            } else {
-                render->sprite.setPosition(0, 0);
+            // 🔹 Dessiner les éléments statiques (ligne centrale, obstacles, autres rectangles)
+            if (rect && !paddle) {
+                sf::RectangleShape shape(sf::Vector2f(rect->width, rect->height));
+                shape.setPosition(rect->x, rect->y);
+                shape.setFillColor(rect->color);
+                window.draw(shape);
             }
 
-            if (render->pathTexture.toAnsiString().find("arrow") != std::string::npos) {
-                arrows.push_back({render, position});
-            } else if (token) {
-                tokens.push_back({render, position});
-            } else {
-                window.draw(render->sprite);
-            }
-        }
-
-        if (circle) {
-            // std::cerr << "     ✅ CircleComponent détecté\n";
-            balls.push_back({circle, position});
-        }
-    }
-
-    // std::cerr << "🔍 Vérification des entités (Deuxième passe : Textes et Boutons)\n";
-
-    for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
-        // std::cerr << "   ▶ Traitement de l'entité (Textes) : " << it->first << "\n";
-
-        RectangleComponent* rect = scene.getComponent<RectangleComponent>(it->first);
-        HoverComponent* hover = scene.getComponent<HoverComponent>(it->first);
-        TextComponent* textComp = scene.getComponent<TextComponent>(it->first);
-        PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
-
-        if (rect) {
-            sf::RectangleShape buttonShape(sf::Vector2f(rect->width, rect->height));
-            buttonShape.setPosition(rect->x, rect->y);
-
-            if (hover) {
-                sf::FloatRect buttonBounds(rect->x, rect->y, rect->width, rect->height);
-                hover->isHovered = buttonBounds.contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-                buttonShape.setFillColor(hover->isHovered ? hover->hoverColor : rect->color);
-            } else {
-                buttonShape.setFillColor(rect->color);
-            }
-
-            window.draw(buttonShape);
-        }
-
-        if (textComp && position) {
-            try {
-                if (textComp->text.getFont() != nullptr) {
-                    textComp->text.setPosition(position->position.x, position->position.y);
-                    window.draw(textComp->text);
+            // 🔹 Gérer les sprites (flèches, jetons, balles)
+            if (render) {
+                if (position) {
+                    render->sprite.setPosition(position->position.x, position->position.y);
                 } else {
-                    std::cerr << "⚠️ ERREUR : `TextComponent` référencé sans police valide !\n";
+                    render->sprite.setPosition(0, 0);
                 }
-            } catch (const std::exception& e) {
-                std::cerr << "❌ ERREUR: Exception attrapée dans RenderSystem lors de l'affichage du texte : " << e.what() << "\n";
+
+                if (render->pathTexture.toAnsiString().find("arrow") != std::string::npos) {
+                    arrows.push_back({render, position});
+                } else if (token) {
+                    tokens.push_back({render, position});
+                } else {
+                    window.draw(render->sprite);
+                }
+            }
+
+            // 🔹 Stocker les balles pour affichage
+            if (circle) {
+                balls.push_back({circle, position});
+            }
+
+            // 🔹 Stocker les paddles pour les dessiner plus tard
+            if (paddle && position) {
+                paddles.push_back({paddle, position});
             }
         }
-    }
 
-    // std::cerr << "🔍 Affichage des objets de jeu\n";
+        // 🔹 Deuxième passe : afficher les textes
+        for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+            TextComponent* textComp = scene.getComponent<TextComponent>(it->first);
+            PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
 
-    for (auto& ball : balls) {
-        if (ball.second) {
-            ball.first->circle.setPosition(ball.second->position.x, ball.second->position.y);
+            if (textComp && position) {
+                try {
+                    if (textComp->text.getFont() != nullptr) {
+                        textComp->text.setPosition(position->position.x, position->position.y);
+                        window.draw(textComp->text);
+                    } else {
+                        std::cerr << "⚠️ ERREUR : `TextComponent` référencé sans police valide !\n";
+                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "❌ ERREUR: Exception attrapée dans RenderSystem lors de l'affichage du texte : " << e.what() << "\n";
+                }
+            }
         }
-        window.draw(ball.first->circle);
-    }
 
-    for (auto& token : tokens) {
-        if (token.second) {
-            token.first->sprite.setPosition(token.second->position.x, token.second->position.y);
+        // 🔹 Troisième passe : afficher les paddles
+        for (auto& paddle : paddles) {
+            sf::RectangleShape paddleShape(sf::Vector2f(20.0f, 100.0f)); // ⚠️ Vérifier la bonne taille
+            paddleShape.setPosition(paddle.second->position.x, paddle.second->position.y);
+            paddleShape.setFillColor(sf::Color::White);
+            window.draw(paddleShape);
         }
-        window.draw(token.first->sprite);
-    }
 
-    for (auto& arrow : arrows) {
-        if (arrow.second) {
-            arrow.first->sprite.setPosition(arrow.second->position.x, arrow.second->position.y);
+        // 🔹 Quatrième passe : afficher les balles
+        for (auto& ball : balls) {
+            if (ball.second) {
+                ball.first->circle.setPosition(ball.second->position.x, ball.second->position.y);
+            }
+            window.draw(ball.first->circle);
         }
-        window.draw(arrow.first->sprite);
+
+        // 🔹 Cinquième passe : afficher les jetons avant la flèche
+        for (auto& token : tokens) {
+            if (token.second) {
+                token.first->sprite.setPosition(token.second->position.x, token.second->position.y);
+            }
+            window.draw(token.first->sprite);
+        }
+
+        // 🔹 Sixième passe : afficher les flèches en dernier
+        for (auto& arrow : arrows) {
+            if (arrow.second) {
+                arrow.first->sprite.setPosition(arrow.second->position.x, arrow.second->position.y);
+            }
+            window.draw(arrow.first->sprite);
+        }
+
+        window.display();
     }
-
-    window.display();
-    // std::cerr << "✅ Fin de RenderSystem::update()\n";
-}
-
 
 private:
     sf::RenderWindow window;
