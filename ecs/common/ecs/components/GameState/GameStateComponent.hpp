@@ -8,20 +8,20 @@
 #include "../Component.hpp"
 
 struct GameStateComponent : public Component {
-    int currentPlayer;
+    std::size_t currentPlayerEntity;
     bool gameOver;
     std::string winnerText;
     std::size_t player1Entity;
     std::size_t player2Entity;
 
     GameStateComponent(std::size_t player1, std::size_t player2) 
-        : currentPlayer(1), gameOver(false), winnerText(""), player1Entity(player1), player2Entity(player2) {}
+        : currentPlayerEntity(player1), gameOver(false), winnerText(""), player1Entity(player1), player2Entity(player2) {}
 
     void switchPlayer() {
-        currentPlayer = (currentPlayer == 1) ? 2 : 1;
+        currentPlayerEntity = (currentPlayerEntity == player1Entity) ? player2Entity : player1Entity;
     }
 
-    void endGame(int winner) {
+    void endGame(std::size_t winner) {
         gameOver = true;
         winnerText = "🎉 Player " + std::to_string(winner) + " won!";
     }

@@ -17,30 +17,25 @@ public:
             ActionKeyBind* actionKey = scene.getComponent<ActionKeyBind>(entity.first);
 
             if (position && arrow && grid && input && actionKey) {
+
                 // Vérifie si la touche "avant" ou "arrière" est pressée
-                if (input->isKeyPressed(actionKey->forward) || input->isKeyPressed(actionKey->back)) {
+                if (input->isKeyReleased(actionKey->forward) || input->isKeyReleased(actionKey->back)) {
                     return;
                 }
-
                 // Gestion de la touche "gauche"
-                if (input->isKeyPressed(actionKey->left)) {
-                    if (!input->keyPressedState[actionKey->left] && arrow->currentColumn > 0) {
+                if (input->isKeyReleased(actionKey->left)) {
+                    // std::cout << "Touche left released\n";
+                    if (arrow->currentColumn > 0) {
                         arrow->currentColumn--;
-                        input->keyPressedState[actionKey->left] = true;
                     }
-                } else {
-                    input->keyPressedState[actionKey->left] = false;
-                }
+                } 
 
                 // Gestion de la touche "droite"
-                if (input->isKeyPressed(actionKey->right)) {
-                    if (!input->keyPressedState[actionKey->right] && arrow->currentColumn < arrow->maxColumns - 1) {
-                        std::cout << "PROUT\n";
+                if (input->isKeyReleased(actionKey->right)) {
+                    // std::cout << "Touche Right released\n";
+                    if (arrow->currentColumn < arrow->maxColumns - 1) {
                         arrow->currentColumn++;
-                        input->keyPressedState[actionKey->right] = true;
                     }
-                } else {
-                    input->keyPressedState[actionKey->right] = false;
                 }
 
                 position->position.x = grid->columnPositions[arrow->currentColumn];

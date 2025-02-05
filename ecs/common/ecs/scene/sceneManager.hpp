@@ -12,6 +12,7 @@
 #include "../systems/Network/ClientNetworkSystem.hpp"
 #include "../systems/Time/TimeSystem.hpp"
 #include "../systems/Action/OnClickSytem.hpp"
+#include "../systems/Input/KeyboardInputSystem.hpp"
 
 #include <functional>
 
@@ -84,7 +85,7 @@ private:
     }
 
     bool runSceneServer(Scene &em) {
-        InputSystem inputSystem;
+        // InputSystem inputSystem;
         TimeSystem timeSystem;
         MovementSystem movementSystem;
         sf::Clock clock;
@@ -96,6 +97,7 @@ private:
         ArrowMovementSystem arrowMovementSystem;
         TokenPlacementSystem tokenPlacementSystem;
         OnClickSytem onclickSystem(&win);
+        KeyboardInputSystem keyBoardInputSystem;
 
         while (1) {
                 float dt = clock.restart().asSeconds();
@@ -104,7 +106,9 @@ private:
                 }
                 if (isServerScene) {
                     serverNetworkSystem->dataFromClients(em);
-                }            
+                }       
+                    keyBoardInputSystem.resetKeyRelease(em);
+     
                 timeSystem.update(em, dt);
                 if (isLocalClient) {
                     sf::Event event;
@@ -113,8 +117,9 @@ private:
                             win.close();
                         }
                         onclickSystem.handleEvent(event, em);
+                        keyBoardInputSystem.handleEvent(event, em, true);
                     }
-                    inputSystem.updateForServer(em, win);
+                    // inputSystem.updateForServer(em, win);
                 }
                 movementSystem.update(em);
                 arrowMovementSystem.update(em);
@@ -133,7 +138,7 @@ private:
 
 
     bool runSceneClient(Scene &em) {
-        InputSystem inputSystem;
+        // InputSystem inputSystem;
         TimeSystem timeSystem;
         MovementSystem movementSystem;
         ClientNetworkSystem clientNetworkSystem(em.serverAdress, em.port, em.tickRate);
@@ -141,6 +146,7 @@ private:
         sf::RenderWindow& win = renderSystem.getWindow();
         bool chechk = false;
         bool isNetworked = em.isNetworked;
+        KeyboardInputSystem keyBoardInputSystem;
 
         // il faudra les ajouter les systemes de facon générique, parce qu'on à pas besoin de ces systemes souvent par exemple !
         BounceSystem bounceSystem;
@@ -162,21 +168,24 @@ private:
             timeSystem.update(em, dt);
 
             // Pour test a dev cote serveur aussi
+                keyBoardInputSystem.resetKeyRelease(em);
             sf::Event event;
             while (win.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     win.close();
                 }
                 onclickSystem.handleEvent(event, em);
+                keyBoardInputSystem.handleEvent(event, em, true);
+
             }
         
-            inputSystem.update(em, win);
+            // inputSystem.update(em, win);
             movementSystem.update(em);
             movementSystem.update(em);
             arrowMovementSystem.update(em);
             tokenPlacementSystem.update(em);
             if (isNetworked) {
-                clientNetworkSystem.dataToServer(em, inputSystem, dt);
+                clientNetworkSystem.dataToServer(em, keyBoardInputSystem, dt);
                 clientNetworkSystem.dataFromServer(em);
             }
             renderSystem.update(em);

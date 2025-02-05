@@ -11,12 +11,12 @@ public:
             for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
                 InputComponent* input = scene.getComponent<InputComponent>(it->first);
                 if (input) {
-                    input->keys.clear();
+                    input->keysPressed.clear();
                     for (int i = sf::Keyboard::A; i <= sf::Keyboard::KeyCount; ++i) {
                         sf::Keyboard::Key key = static_cast<sf::Keyboard::Key>(i);
-                        input->keys[key] = sf::Keyboard::isKeyPressed(key);
+                        input->keysPressed[key] = sf::Keyboard::isKeyPressed(key);
                     }
-                    inputPress = std::any_of(input->keys.begin(), input->keys.end(), [](const auto& pair) {
+                    inputPress = std::any_of(input->keysPressed.begin(), input->keysPressed.end(), [](const auto& pair) {
                         return pair.second;
                     });
                 }
@@ -29,13 +29,13 @@ public:
                 InputComponent* input = scene.getComponent<InputComponent>(it->first);
                 BindClientComponentTest* bind = scene.getComponent<BindClientComponentTest>(it->first);
                 if (input && !bind) {
-                    input->keys.clear();
+                    input->keysPressed.clear();
                     for (int i = sf::Keyboard::A; i <= sf::Keyboard::KeyCount; ++i) {
                         sf::Keyboard::Key key = static_cast<sf::Keyboard::Key>(i);
-                        input->keys[key] = sf::Keyboard::isKeyPressed(key);
+                        input->keysPressed[key] = sf::Keyboard::isKeyPressed(key);
                     }
 
-                    inputPress = std::any_of(input->keys.begin(), input->keys.end(), [](const auto& pair) {
+                    inputPress = std::any_of(input->keysPressed.begin(), input->keysPressed.end(), [](const auto& pair) {
                         return pair.second;
                     });
 

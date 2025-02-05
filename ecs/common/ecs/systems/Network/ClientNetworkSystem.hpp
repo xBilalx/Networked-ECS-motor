@@ -5,7 +5,7 @@
 #include "./NetworkManager.hpp"
 #include "../../components/Input/InputComponent.hpp"
 #include "../../components/Transform/PositionComponent.hpp"
-
+#include "../Input/KeyboardInputSystem.hpp"
 class ClientNetworkSystem {
     public:
         ClientNetworkSystem(std::string serverIp, uint16_t serverPort, float coolDown = 0) : serverIp(serverIp), serverPort(serverPort), coolDown(coolDown), currentTime(0) {}
@@ -14,7 +14,7 @@ class ClientNetworkSystem {
             return true;
         }
 
-        void dataToServer(Scene& em, InputSystem& inputSystem, float dt) {
+        void dataToServer(Scene& em, KeyboardInputSystem& inputSystem, float dt) {
 
             if (coolDown != 0) {
                 currentTime += dt;
@@ -26,7 +26,7 @@ class ClientNetworkSystem {
             }
 
              // si le client controle la pos de ses entité (mais faudra régler lec côte serveur du coup)
-
+    
                 // inputSystem.inputPress = false;
                 if (managePos) {
                     for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
@@ -51,14 +51,12 @@ class ClientNetworkSystem {
                         InputComponent* input = em.getComponent<InputComponent>(it->first);
                         PositionComponent* position = em.getComponent<PositionComponent>(it->first);
                         if (input) {
-                            // std::cout << "BEFORE SEND\n";
                             Serializer::serialize(buffer, Serializer::MessageType::ENTITY);
                             Serializer::serialize(buffer, (uint64_t)it->first);
                             Serializer::serialize(buffer, Serializer::MessageType::INPUT);
                             input->serialize(buffer);
                             Serializer::serialize(buffer, Serializer::MessageType::END);
                             networkManager.sendTo(buffer, serverIp, serverPort);
-                            std::cout << "PROUT\n";
                         }
                     }
                 }
@@ -120,7 +118,6 @@ class ClientNetworkSystem {
                                 float playerId = Serializer::deserialize<int>(packet.data);
                                 if (!token) {
                                     em.addComponent<TokenComponent>(entityNbr, playerId);
-                                    std::cout << "Miaow\n";
                                 }
                             }
                             if (messageType == Serializer::MessageType::RECTANGLE) {

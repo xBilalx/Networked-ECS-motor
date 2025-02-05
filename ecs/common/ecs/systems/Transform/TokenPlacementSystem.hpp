@@ -7,6 +7,8 @@
 #include "../../components/Input/InputComponent.hpp"
 #include "../../components/Token/TokenComponent.hpp"
 #include "../../components/Render/RenderComponent.hpp"
+#include "../../components/Network/BindRemoteComponent.hpp"
+
 #include "../../components/GameState/GameStateComponent.hpp"
 #include "../../Model/TokenModel.hpp"
 #include <SFML/Window/Keyboard.hpp>
@@ -17,7 +19,7 @@
 class TokenPlacementSystem {
 public:
     void update(Scene& scene) {
-        static bool spacePressed = false;
+        // static bool spacePressed = false;
         
         GameStateComponent* gameState = scene.getComponent<GameStateComponent>(0);
         // if (!gameState) {
@@ -33,11 +35,23 @@ public:
             PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
             ArrowComponent* arrow = scene.getComponent<ArrowComponent>(entity.first);
             GridComponent* grid = scene.getComponent<GridComponent>(0);
+            BindClientComponentTest* bind = scene.getComponent<BindClientComponentTest>(entity.first);
+            InputComponent* input = scene.getComponent<InputComponent>(entity.first);
 
-            if (position && arrow && grid) {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !spacePressed) {
-                    spacePressed = true;
+            // if (entity.first == 43 || entity.first == 44) {
+            //     if (!position) {
 
+            //     }
+            // }
+            if (position && arrow && grid && input) {
+                if (gameState->currentPlayerEntity != entity.first) {
+                    continue;
+                }
+
+                if (input->isKeyReleased(sf::Keyboard::Space)) {
+                    // spacePressed = true;
+                                std::cout << entity.first << std::endl;
+                    
                     int row = findAvailableRow(grid, arrow->currentColumn);
                     if (row == -1) {
                         std::cerr << "Colonne pleine !" << std::endl;
@@ -47,27 +61,31 @@ public:
                     float tokenX = grid->columnPositions[arrow->currentColumn];
                     float tokenY = grid->gridOffsetY + row * grid->cellSize + (grid->cellSize / 2.0f);
 
-                    int currentPlayer = gameState->currentPlayer;
-                    std::string texturePath = (currentPlayer == 1) ? "../assets/blue_bubble.png" : "../assets/yellow_bubble.png";
+                    int currentPlayer = gameState->currentPlayerEntity;
+                    std::string texturePath = (currentPlayer == gameState->player1Entity) ? "../assets/blue_bubble.png" : "../assets/yellow_bubble.png";
                     TokenModel token(scene, texturePath, tokenX, tokenY, currentPlayer);
 
                     grid->gridState[row][arrow->currentColumn] = currentPlayer;
 
                     if (checkVictory(grid, row, arrow->currentColumn, currentPlayer)) {
+                        std::cout << "gagener\n";
                         gameState->endGame(currentPlayer);
                         updatePlayerTurnText(scene, "🎉 Player " + std::to_string(currentPlayer) + " won!");
                         return;
                     }
 
                     gameState->switchPlayer();
-                    updatePlayerTurnText(scene, (gameState->currentPlayer == 1) ? "It's Player Blue's turn" : "It's Player Yellow's turn");
+                    updatePlayerTurnText(scene, (gameState->currentPlayerEntity == gameState->player1Entity) ? "It's Player Blue's turn" : "It's Player Yellow's turn");
+                    
+                    
                     // updateArrowTexture(scene, gameState->currentPlayer);
+                    return;
                 }
             }
         }
 
         if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            spacePressed = false;
+            // spacePressed = false;
         }
     }
 

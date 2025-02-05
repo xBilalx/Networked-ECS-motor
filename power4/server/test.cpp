@@ -38,14 +38,12 @@ int main() {
         GridModel grid(scene, "../assets/menu_background.png", 6, 7, cellSize);
 
         std::size_t player1 = scene.createEntity();
-        ArrowModel arrow(scene, "../assets/yellow_arrow.png", cellSize, player1);
+        ArrowModel arrow(scene, "../assets/blue_arrow.png", cellSize, player1);
         scene.addComponent<BindClientComponentTest>(arrow.getEntity(), 0, true); // La fleche est géré par le client 0 et l'entité est géré par le serveur
 
         std::size_t player2 = scene.createEntity();
-        ArrowModel arrow1(scene, "../assets/blue_arrow.png", cellSize, player2);
+        ArrowModel arrow1(scene, "../assets/yellow_arrow.png", cellSize, player2);
         scene.addComponent<BindClientComponentTest>(arrow1.getEntity(), 1, true); // La fleche est géré par le client 0 et l'entité est géré par le serveur
-
-
 
         scene.addComponent<PlayerComponent>(player1, 1);
         scene.addComponent<PlayerComponent>(player2, 2);

@@ -18,6 +18,7 @@ public:
         float arrowX = gridOffsetX + initialColumn * cellSize + (cellSize / 2.0f);
         float arrowY = gridOffsetY - cellSize + 10;
         arrowEntity = arrowEntity_;
+        std::cout << arrowEntity_ << std::endl;
         scene.addComponent<PositionComponent>(arrowEntity, arrowX, arrowY);
         RenderComponent& renderComponent = scene.addComponent<RenderComponent>(arrowEntity, texturePath, true);
         scene.addComponent<InputComponent>(arrowEntity);

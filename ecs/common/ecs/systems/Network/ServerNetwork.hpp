@@ -97,7 +97,7 @@ class ServerNetworkSystem {
                         if (token) {
                             Serializer::serialize(buffer, Serializer::MessageType::TOKEN);
                             Serializer::serialize(buffer, (int)token->playerId);
-                            std::cout << "Send TOKEN\n";
+                            // std::cout << "Send TOKEN\n";
                         }
                         if (position) {
                             // if (bindClientTest && !bindClientTest->ManagePosByServ &&currentBindId == bindClientTest->bindId && !bindClientTest->ManagePosByServ) {
@@ -169,6 +169,11 @@ class ServerNetworkSystem {
                                 InputComponent* input = em.getComponent<InputComponent>(entityNbr);
                                 if (input) {
                                     input->deserialize(packet.data);
+                                    if (input->isKeyReleased(sf::Keyboard::Right)) {
+                                        std::cout << "-----------------------------Elle est préssé\n";
+                                    } else {
+                                        std::cout << "--------------------------------Elle est PAS préssé\n";
+                                    }
                                 }
                             }
                         }
