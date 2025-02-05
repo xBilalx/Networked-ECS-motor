@@ -20,14 +20,14 @@ public:
         static bool spacePressed = false;
         
         GameStateComponent* gameState = scene.getComponent<GameStateComponent>(0);
-        if (!gameState) {
-            std::cerr << "ERREUR: GameStateComponent introuvable !" << std::endl;
-            return;
-        }
-        if (gameState->gameOver) {
-            std::cerr << "🎉 La partie est terminée, plus de placements possibles !" << std::endl;
-            return;
-        }
+        // if (!gameState) {
+        //     std::cerr << "ERREUR: GameStateComponent introuvable !" << std::endl;
+        //     return;
+        // }
+        // if (gameState->gameOver) {
+        //     std::cerr << "🎉 La partie est terminée, plus de placements possibles !" << std::endl;
+        //     return;
+        // }
 
         for (auto& entity : scene.entities1) {
             PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
@@ -61,7 +61,7 @@ public:
 
                     gameState->switchPlayer();
                     updatePlayerTurnText(scene, (gameState->currentPlayer == 1) ? "It's Player Blue's turn" : "It's Player Yellow's turn");
-                    updateArrowTexture(scene, gameState->currentPlayer);
+                    // updateArrowTexture(scene, gameState->currentPlayer);
                 }
             }
         }
@@ -117,9 +117,10 @@ private:
             RenderComponent* render = scene.getComponent<RenderComponent>(entity.first);
 
             if (arrow && render) {
-                std::string newTexture = (currentPlayer == 1) ? "../assets/blue_arrow.png" : "../assets/yellow_arrow.png";
-                if (!render->texture.loadFromFile(newTexture)) {
-                    std::cerr << "Impossible de charger la texture de la flèche: " << newTexture << std::endl;
+                render->pathTexture = (currentPlayer == 1) ? "../assets/blue_arrow.png" : "../assets/yellow_arrow.png";
+                std::cout << render->pathTexture << std::endl;
+                if (!render->texture.loadFromFile(render->pathTexture)) {
+                    std::cerr << "Impossible de charger la texture de la flèche: " << render->pathTexture << std::endl;
                 }
                 render->sprite.setTexture(render->texture);
             }

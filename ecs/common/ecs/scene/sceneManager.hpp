@@ -11,6 +11,8 @@
 #include "../systems/Network/ServerNetwork.hpp"
 #include "../systems/Network/ClientNetworkSystem.hpp"
 #include "../systems/Time/TimeSystem.hpp"
+#include "../systems/Action/OnClickSytem.hpp"
+
 #include <functional>
 
 class sceneManager {
@@ -93,9 +95,9 @@ private:
         BounceSystem bounceSystem;
         ArrowMovementSystem arrowMovementSystem;
         TokenPlacementSystem tokenPlacementSystem;
+        OnClickSytem onclickSystem(&win);
 
         while (1) {
-
                 float dt = clock.restart().asSeconds();
                 if (debug) {
                     std::cout << "Time for loop -> " << dt << "s\n"; 
@@ -105,12 +107,18 @@ private:
                 }            
                 timeSystem.update(em, dt);
                 if (isLocalClient) {
+                    sf::Event event;
+                    while (win.pollEvent(event)) {
+                        if (event.type == sf::Event::Closed) {
+                            win.close();
+                        }
+                        onclickSystem.handleEvent(event, em);
+                    }
                     inputSystem.updateForServer(em, win);
                 }
                 movementSystem.update(em);
                 arrowMovementSystem.update(em);
                 tokenPlacementSystem.update(em);
-
                 if (isServerScene) {
                     serverNetworkSystem->dataToClients(em, dt);
                 }
@@ -134,6 +142,12 @@ private:
         bool chechk = false;
         bool isNetworked = em.isNetworked;
 
+        // il faudra les ajouter les systemes de facon générique, parce qu'on à pas besoin de ces systemes souvent par exemple !
+        BounceSystem bounceSystem;
+        ArrowMovementSystem arrowMovementSystem;
+        TokenPlacementSystem tokenPlacementSystem;
+        OnClickSytem onclickSystem(&win);
+
         while (win.isOpen()) {
             float dt = clock.restart().asSeconds();
                 if (debug) {
@@ -146,22 +160,32 @@ private:
                     }
                 }
             timeSystem.update(em, dt);
-                if (isNetworked) {
-                    clientNetworkSystem.dataToServer(em, inputSystem, dt);
-                    clientNetworkSystem.dataFromServer(em);
+
+            // Pour test a dev cote serveur aussi
+            sf::Event event;
+            while (win.pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    win.close();
                 }
-            renderSystem.update(em);
+                onclickSystem.handleEvent(event, em);
+            }
+        
             inputSystem.update(em, win);
             movementSystem.update(em);
-
+            movementSystem.update(em);
+            arrowMovementSystem.update(em);
+            tokenPlacementSystem.update(em);
+            if (isNetworked) {
+                clientNetworkSystem.dataToServer(em, inputSystem, dt);
+                clientNetworkSystem.dataFromServer(em);
+            }
+            renderSystem.update(em);
             if (isNewScene) {
                 return true;
             }
         }
         return false;
     }
-
-
         std::unordered_map<std::string, std::function<void (Scene&)>> initScenes;
         std::unordered_map<std::string, std::shared_ptr<Scene>> scenes;
         std::string currentScene;

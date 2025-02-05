@@ -3,23 +3,22 @@
 #include "../../entitiesManager.hpp"
 #include "../../components/Network/BindRemoteComponent.hpp"
 #include "../../components/Input/InputComponent.hpp"
-class InputSystem {
-public:
 
+class InputSystem { // C'est plus KeyInputSystem
+public:
     void update(Scene& scene, sf::RenderWindow& win) {
         if (win.isOpen() && win.hasFocus()) {
             for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
                 InputComponent* input = scene.getComponent<InputComponent>(it->first);
-                BindClientComponent* bind = scene.getComponent<BindClientComponent>(it->first);
                 if (input) {
-                    input->moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
-                    input->moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
-                    input->moveUp = sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
-                    input->moveDown = sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
-                    input->spaceBar = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-                        inputPress = true;
+                    input->keys.clear();
+                    for (int i = sf::Keyboard::A; i <= sf::Keyboard::KeyCount; ++i) {
+                        sf::Keyboard::Key key = static_cast<sf::Keyboard::Key>(i);
+                        input->keys[key] = sf::Keyboard::isKeyPressed(key);
                     }
+                    inputPress = std::any_of(input->keys.begin(), input->keys.end(), [](const auto& pair) {
+                        return pair.second;
+                    });
                 }
             }
         }
@@ -30,17 +29,20 @@ public:
                 InputComponent* input = scene.getComponent<InputComponent>(it->first);
                 BindClientComponentTest* bind = scene.getComponent<BindClientComponentTest>(it->first);
                 if (input && !bind) {
-                    input->moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
-                    input->moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
-                    input->moveUp = sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
-                    input->moveDown = sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
-                    input->spaceBar = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-                        inputPress = true;
+                    input->keys.clear();
+                    for (int i = sf::Keyboard::A; i <= sf::Keyboard::KeyCount; ++i) {
+                        sf::Keyboard::Key key = static_cast<sf::Keyboard::Key>(i);
+                        input->keys[key] = sf::Keyboard::isKeyPressed(key);
                     }
+
+                    inputPress = std::any_of(input->keys.begin(), input->keys.end(), [](const auto& pair) {
+                        return pair.second;
+                    });
+
                 }
             }
         }
     }
-    bool inputPress;
+
+    bool inputPress = false;
 };

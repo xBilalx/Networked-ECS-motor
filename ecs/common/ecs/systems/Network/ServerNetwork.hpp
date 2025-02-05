@@ -100,12 +100,12 @@ class ServerNetworkSystem {
                             std::cout << "Send TOKEN\n";
                         }
                         if (position) {
-                            if (bindClientTest && currentBindId == bindClientTest->bindId && !bindClientTest->ManagePosByServ) {
-                                continue;
-                            }
-                            if (bindClientTest && currentBindId == bindClientTest->bindId && bindClientTest->ManagePosByServ) {
-                                bindClientTest->ManagePosByServ = false;
-                            }
+                            // if (bindClientTest && !bindClientTest->ManagePosByServ &&currentBindId == bindClientTest->bindId && !bindClientTest->ManagePosByServ) {
+                            //     continue;
+                            // }
+                            // if (bindClientTest && currentBindId == bindClientTest->bindId && bindClientTest->ManagePosByServ) {
+                            //     bindClientTest->ManagePosByServ = false;
+                            // }
                             Serializer::serialize(buffer, Serializer::MessageType::POSITION);
                             Serializer::serialize(buffer, (float) position->position.x);
                             Serializer::serialize(buffer, (float) position->position.y); 
@@ -163,6 +163,12 @@ class ServerNetworkSystem {
                                         pos->position.x = x;
                                         pos->position.y = y;
                                     }
+                                }
+                            }
+                            if (messageType == Serializer::MessageType::INPUT) {
+                                InputComponent* input = em.getComponent<InputComponent>(entityNbr);
+                                if (input) {
+                                    input->deserialize(packet.data);
                                 }
                             }
                         }

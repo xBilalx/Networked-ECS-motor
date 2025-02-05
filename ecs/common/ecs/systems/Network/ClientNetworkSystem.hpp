@@ -25,25 +25,44 @@ class ClientNetworkSystem {
                 }
             }
 
-            if (inputSystem.inputPress) {
-                inputSystem.inputPress = false;
-                for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
-                    std::string buffer;
-                    InputComponent* input = em.getComponent<InputComponent>(it->first);
-                    PositionComponent* position = em.getComponent<PositionComponent>(it->first);
-                    if (input && position) {
-                        // std::cout << "BEFORE SEND\n";
-                        Serializer::serialize(buffer, Serializer::MessageType::ENTITY);
-                        Serializer::serialize(buffer, (uint64_t)it->first);
-                        Serializer::serialize(buffer, Serializer::MessageType::POSITION);
-                        Serializer::serialize(buffer, (float) position->position.x);
-                        Serializer::serialize(buffer, (float) position->position.y);
-                        Serializer::serialize(buffer, Serializer::MessageType::END);
-                        networkManager.sendTo(buffer, serverIp, serverPort);
-                    }
+             // si le client controle la pos de ses entité (mais faudra régler lec côte serveur du coup)
 
+                // inputSystem.inputPress = false;
+                if (managePos) {
+                    for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
+                        std::string buffer;
+                        InputComponent* input = em.getComponent<InputComponent>(it->first);
+                        PositionComponent* position = em.getComponent<PositionComponent>(it->first);
+                        if (input && position) {
+                            // std::cout << "BEFORE SEND\n";
+                            Serializer::serialize(buffer, Serializer::MessageType::ENTITY);
+                            Serializer::serialize(buffer, (uint64_t)it->first);
+                            Serializer::serialize(buffer, Serializer::MessageType::POSITION);
+                            Serializer::serialize(buffer, (float) position->position.x);
+                            Serializer::serialize(buffer, (float) position->position.y);
+                            Serializer::serialize(buffer, Serializer::MessageType::END);
+                            networkManager.sendTo(buffer, serverIp, serverPort);
+                        }
+                    }
+                } else {
+                    // ICI
+                    for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
+                        std::string buffer;
+                        InputComponent* input = em.getComponent<InputComponent>(it->first);
+                        PositionComponent* position = em.getComponent<PositionComponent>(it->first);
+                        if (input) {
+                            // std::cout << "BEFORE SEND\n";
+                            Serializer::serialize(buffer, Serializer::MessageType::ENTITY);
+                            Serializer::serialize(buffer, (uint64_t)it->first);
+                            Serializer::serialize(buffer, Serializer::MessageType::INPUT);
+                            input->serialize(buffer);
+                            Serializer::serialize(buffer, Serializer::MessageType::END);
+                            networkManager.sendTo(buffer, serverIp, serverPort);
+                            std::cout << "PROUT\n";
+                        }
+                    }
                 }
-            }
+            
         }
 
         // Process of deserialization and Creation/Modification of entity/component
@@ -90,7 +109,10 @@ class ClientNetworkSystem {
                                     renderComponent.sprite.setScale(scaleFactor, scaleFactor);
                                     renderComponent.sprite.setOrigin(textureSize.x / 2.0f, textureSize.y / 2.0f);
                                 } else {
-                                    // std::cout << "Il faut modifier le render\n";
+                                    if (render->pathTexture != pathImg) {
+                                        render->pathTexture = pathImg;
+                                        render->loadTecture();
+                                    }
                                 }
                             }
                             if (messageType == Serializer::MessageType::TOKEN) {
@@ -129,6 +151,7 @@ class ClientNetworkSystem {
                                 InputComponent* render = em.getComponent<InputComponent>(entityNbr);
                                 if (!render) {
                                     em.addComponent<InputComponent>(entityNbr);
+                                    std::cout << "INPUT Crée è-------------------------\n";
                                 } else {
                                     // std::cout << "Il faut modifier le render\n";
                                 }
@@ -167,4 +190,6 @@ class ClientNetworkSystem {
         float coolDown; // Time passed
         float currentTime; // Current time
         float currentTimeSend;
+
+        bool managePos = false;
 };

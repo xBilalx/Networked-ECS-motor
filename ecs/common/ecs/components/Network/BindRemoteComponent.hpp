@@ -15,6 +15,7 @@ struct BindClientComponent : public Component {
 struct BindClientComponentTest : public Component {
     public:
         int bindId;
-        bool ManagePosByServ = true;
-        BindClientComponentTest(int bindId) : bindId(bindId) {}
+        bool ManagePosByClient = true;
+        bool ManagePosByServ;
+        BindClientComponentTest(int bindId, bool ManagePosByServ = true) : bindId(bindId), ManagePosByServ(ManagePosByServ) {}
 };

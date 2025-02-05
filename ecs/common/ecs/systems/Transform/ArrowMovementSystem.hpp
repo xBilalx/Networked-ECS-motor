@@ -9,35 +9,40 @@
 class ArrowMovementSystem {
 public:
     void update(Scene& scene) {
-        static std::unordered_map<int, bool> keyPressedState;
-
         for (auto& entity : scene.entities1) {
             PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
             ArrowComponent* arrow = scene.getComponent<ArrowComponent>(entity.first);
             GridComponent* grid = scene.getComponent<GridComponent>(0);
             InputComponent* input = scene.getComponent<InputComponent>(entity.first);
+            ActionKeyBind* actionKey = scene.getComponent<ActionKeyBind>(entity.first);
 
-            if (position && arrow && grid && input) {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+            if (position && arrow && grid && input && actionKey) {
+                // Vérifie si la touche "avant" ou "arrière" est pressée
+                if (input->isKeyPressed(actionKey->forward) || input->isKeyPressed(actionKey->back)) {
                     return;
                 }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-                    if (!keyPressedState[sf::Keyboard::Left] && arrow->currentColumn > 0) {
+
+                // Gestion de la touche "gauche"
+                if (input->isKeyPressed(actionKey->left)) {
+                    if (!input->keyPressedState[actionKey->left] && arrow->currentColumn > 0) {
                         arrow->currentColumn--;
-                        keyPressedState[sf::Keyboard::Left] = true;
+                        input->keyPressedState[actionKey->left] = true;
                     }
                 } else {
-                    keyPressedState[sf::Keyboard::Left] = false;
+                    input->keyPressedState[actionKey->left] = false;
                 }
 
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-                    if (!keyPressedState[sf::Keyboard::Right] && arrow->currentColumn < arrow->maxColumns - 1) {
+                // Gestion de la touche "droite"
+                if (input->isKeyPressed(actionKey->right)) {
+                    if (!input->keyPressedState[actionKey->right] && arrow->currentColumn < arrow->maxColumns - 1) {
+                        std::cout << "PROUT\n";
                         arrow->currentColumn++;
-                        keyPressedState[sf::Keyboard::Right] = true;
+                        input->keyPressedState[actionKey->right] = true;
                     }
                 } else {
-                    keyPressedState[sf::Keyboard::Right] = false;
+                    input->keyPressedState[actionKey->right] = false;
                 }
+
                 position->position.x = grid->columnPositions[arrow->currentColumn];
             }
         }

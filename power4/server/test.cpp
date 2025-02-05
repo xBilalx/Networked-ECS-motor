@@ -27,22 +27,32 @@
 //     SceneManager.run();
 // }
 
+
+
 int main() {
     sceneManager SceneManager(true, false);
 
-    SceneManager.addScene("Power4Scene", [](Scene& scene) {
+    SceneManager.addScene("GAME", [](Scene& scene) {
         scene.isServerScene = true;
         float cellSize = 80.0f;
         GridModel grid(scene, "../assets/menu_background.png", 6, 7, cellSize);
-        ArrowModel arrow(scene, "../assets/blue_arrow.png", cellSize);
+
         std::size_t player1 = scene.createEntity();
+        ArrowModel arrow(scene, "../assets/yellow_arrow.png", cellSize, player1);
+        scene.addComponent<BindClientComponentTest>(arrow.getEntity(), 0, true); // La fleche est géré par le client 0 et l'entité est géré par le serveur
+
         std::size_t player2 = scene.createEntity();
+        ArrowModel arrow1(scene, "../assets/blue_arrow.png", cellSize, player2);
+        scene.addComponent<BindClientComponentTest>(arrow1.getEntity(), 1, true); // La fleche est géré par le client 0 et l'entité est géré par le serveur
+
+
+
         scene.addComponent<PlayerComponent>(player1, 1);
         scene.addComponent<PlayerComponent>(player2, 2);
         scene.addComponent<GameStateComponent>(0, player1, player2);
     });
 
-    SceneManager.setCurrentScene("Power4Scene");
-    SceneManager.setServerNetwork("127.0.0.1", 8090, 1, 0.0083);
+    SceneManager.setCurrentScene("GAME");
+    SceneManager.setServerNetwork("127.0.0.1", 8090, 2, 0.0083);
     SceneManager.run();
 }

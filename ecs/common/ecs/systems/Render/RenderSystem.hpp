@@ -24,7 +24,7 @@ class RenderSystem {
 public:
     void createWindow(unsigned int modeWidth, unsigned int modeHeight, std::string windowName) {
         window.create(sf::VideoMode(modeWidth, modeHeight), windowName);
-        window.setFramerateLimit(60);
+        window.setFramerateLimit(30);
     }
 
     sf::RenderWindow& getWindow() {
@@ -55,7 +55,7 @@ public:
                     render->sprite.setPosition(0, 0);
                 }
 
-                if (render->pathTexture.toAnsiString().find("arrow") != std::string::npos) {
+                if (render->pathTexture.find("arrow") != std::string::npos) {
                     arrows.push_back({render, position});
                 } else if (token) {
                     tokens.push_back({render, position}); // Stocker les jetons pour les afficher en dernier
