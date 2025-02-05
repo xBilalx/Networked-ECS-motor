@@ -6,6 +6,7 @@
 #include <typeindex>
 #include <iostream>
 #include "./components/Component.hpp"
+#include "./systems/ISystem.hpp"
 
 class sceneManager;
 
@@ -52,9 +53,23 @@ public:
         entitiesNbr = -1;
         std::cout << "Scene cleared\n";
     }
+
+    template<typename T, typename... Args>
+    void addSystem(Args&&... args) {
+        systems.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+    }
+
+    void updateSystems(float dt) {
+        for (auto& system : systems) {
+            system->update(*this, dt);
+        }
+    }
     std::unordered_map<std::size_t, std::unordered_map<std::type_index, std::unique_ptr<Component>>> entities1;
     std::size_t entitiesNbr = -1;
     sceneManager *SceneManager; // Scene Manager
+
+
+    std::vector<std::unique_ptr<ISystem>> systems;
 
     // Scene End Config
     bool isClearAtEnd = false;

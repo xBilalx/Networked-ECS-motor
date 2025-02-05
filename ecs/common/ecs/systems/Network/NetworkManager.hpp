@@ -86,11 +86,10 @@ public:
         sendto(m_sockfd, buffer.data(), buffer.size(), 0, (const struct sockaddr *)&addr, len);
     }
 
-    std::vector<Packet> receiveMessages(bool test)
+    std::vector<Packet> receiveMessages()
     {
         std::vector<Packet> packets;
         char data[1024];
-        std::size_t received;
         struct sockaddr_in senderAddr;
         socklen_t senderLen = sizeof(senderAddr);
 

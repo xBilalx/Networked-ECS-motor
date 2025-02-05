@@ -6,9 +6,11 @@
 #include "../../components/Arrow/ArrowComponent.hpp"
 #include "../../components/Grid/GridComponent.hpp"
 
-class ArrowMovementSystem {
+class ArrowMovementSystem : public ISystem{
 public:
-    void update(Scene& scene) {
+    void update(Scene& scene, float dt) {
+        // std::cout << "--- [DEBUG] ArrowMovement ---\n";
+
         for (auto& entity : scene.entities1) {
             PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
             ArrowComponent* arrow = scene.getComponent<ArrowComponent>(entity.first);
@@ -16,23 +18,24 @@ public:
             InputComponent* input = scene.getComponent<InputComponent>(entity.first);
             ActionKeyBind* actionKey = scene.getComponent<ActionKeyBind>(entity.first);
 
+
+
+
+            InputComponent* inputDEbu = scene.getComponent<InputComponent>(44);
+
             if (position && arrow && grid && input && actionKey) {
 
-                // Vérifie si la touche "avant" ou "arrière" est pressée
                 if (input->isKeyReleased(actionKey->forward) || input->isKeyReleased(actionKey->back)) {
                     return;
                 }
-                // Gestion de la touche "gauche"
                 if (input->isKeyReleased(actionKey->left)) {
-                    // std::cout << "Touche left released\n";
+
                     if (arrow->currentColumn > 0) {
                         arrow->currentColumn--;
                     }
                 } 
 
-                // Gestion de la touche "droite"
                 if (input->isKeyReleased(actionKey->right)) {
-                    // std::cout << "Touche Right released\n";
                     if (arrow->currentColumn < arrow->maxColumns - 1) {
                         arrow->currentColumn++;
                     }

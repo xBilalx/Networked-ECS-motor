@@ -1,13 +1,14 @@
 #pragma once
 
+#include "../ISystem.hpp"
 
-class MovementSystem {
+class MovementSystem : public ISystem {
 public:
-    void update(Scene& scene) {
+    void update(Scene& scene, float dt) {
         for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
-            InputComponent* input = scene.getComponent<InputComponent>(it->first);
-            PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
-            ArrowComponent* arrow = scene.getComponent<ArrowComponent>(it->first);
+            // InputComponent* input = scene.getComponent<InputComponent>(it->first);
+            // PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
+            // ArrowComponent* arrow = scene.getComponent<ArrowComponent>(it->first);
 
             // if (input && position) {
             //     if (arrow) {

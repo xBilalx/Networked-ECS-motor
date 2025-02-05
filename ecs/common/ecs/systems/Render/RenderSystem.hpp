@@ -14,12 +14,6 @@
 
 #include <SFML/Graphics.hpp>
 
-// Pour une futur classe
-class ISystem
-{
-    virtual void update(Scene& scene, float dt) = 0;
-};
-
 class RenderSystem {
 public:
     void createWindow(unsigned int modeWidth, unsigned int modeHeight, std::string windowName) {
@@ -34,11 +28,6 @@ public:
     void update(Scene& scene) {
         window.clear();
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-
-        // BounceSystem bounceSystem;
-        // ArrowMovementSystem arrowMovementSystem;
-        // TokenPlacementSystem tokenPlacementSystem;
-
         std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
         std::vector<std::pair<RenderComponent*, PositionComponent*>> tokens;
 

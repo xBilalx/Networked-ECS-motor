@@ -30,7 +30,7 @@ class ServerNetworkSystem {
         void setXBindClient(int x) {
             maxClient = x;
             for (int i = 0; i < x;  i++) {
-                std::cout << x << std::endl;
+                std::cout << "Nbr of clients : " <<  x << std::endl;
                 bindClients.push_back(std::make_unique<BindClientsTest>());
             }
         }
@@ -38,8 +38,8 @@ class ServerNetworkSystem {
             networkManager = NetworkManager();
             return true;
         }
-        void sendClearScene(Scene& em, float dt) {
-            for (int currentBindId = 0; currentBindId < bindClients.size(); currentBindId++) {
+        void sendClearScene() {
+            for (int currentBindId = 0; currentBindId < static_cast<int>(bindClients.size()); currentBindId++) {
                 BindClientsTest* cli = bindClients[currentBindId].get();
                 if (cli->connected) {
                     std::string buffer;
@@ -60,8 +60,7 @@ class ServerNetworkSystem {
                 }
             }
             
-            int next = false;
-            for (int currentBindId = 0; currentBindId < bindClients.size(); currentBindId++) {
+            for (int currentBindId = 0; currentBindId < static_cast<int>(bindClients.size()); currentBindId++) {
                 BindClientsTest* cli = bindClients[currentBindId].get();
                 if (cli->connected) {
                     for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
@@ -118,7 +117,7 @@ class ServerNetworkSystem {
         }
 
         void dataFromClients(Scene& em) {
-            std::vector<Packet> packets = networkManager.receiveMessages(true);
+            std::vector<Packet> packets = networkManager.receiveMessages();
             for (Packet packet : packets) {
                 Serializer::MessageType messageType = Serializer::MessageType::NOTHING;
                 while (1) {
@@ -126,8 +125,7 @@ class ServerNetworkSystem {
                     if (messageType == Serializer::MessageType::END)
                         break;
                     if (messageType == Serializer::MessageType::CONNECT) {
-                        std::cout << bindClients.size() << std::endl;
-                        for (int currentBindId = 0; currentBindId < bindClients.size(); currentBindId++) {
+                        for (int currentBindId = 0; currentBindId < static_cast<int>(bindClients.size()); currentBindId++) {
                             BindClientsTest* cli = bindClients[currentBindId].get();
                             if (!cli->connected) {
                                 cli->ipClient = packet.senderIp;
@@ -169,12 +167,11 @@ class ServerNetworkSystem {
                                 InputComponent* input = em.getComponent<InputComponent>(entityNbr);
                                 if (input) {
                                     input->deserialize(packet.data);
-                                    if (input->isKeyReleased(sf::Keyboard::Right)) {
-                                        std::cout << "-----------------------------Elle est préssé\n";
-                                    } else {
-                                        std::cout << "--------------------------------Elle est PAS préssé\n";
-                                    }
+                                    // if (input->isKeyReleased(sf::Keyboard::Right)) {
+                                    //     std::cout << "Right Key released by" << entityNbr << std::endl;
+                                    // }
                                 }
+
                             }
                         }
                     }

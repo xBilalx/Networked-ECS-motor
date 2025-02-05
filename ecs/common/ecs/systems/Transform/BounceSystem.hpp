@@ -3,8 +3,9 @@
 #include "../../entitiesManager.hpp"
 #include "../../components/Transform/PositionComponent.hpp"
 #include "../../components/Bounce/BounceComponent.hpp"
+#include "../ISystem.hpp"
 
-class BounceSystem {
+class BounceSystem : public ISystem  {
 public:
     void update(Scene& scene, float dt) {
         for (auto& entity : scene.entities1) {

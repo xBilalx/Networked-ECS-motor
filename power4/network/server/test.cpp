@@ -1,8 +1,9 @@
-#include "../../ecs/common/ecs/scene/sceneManager.hpp"
-#include "../../ecs/common/ecs/Model/MenuModel.hpp"
-#include "../../ecs/common/ecs/Model/GridModel.hpp"
-#include "../../ecs/common/ecs/Model/ArrowModel.hpp"
-#include "../../ecs/common/ecs/components/Player/PlayerComponent.hpp"
+#include "../../../ecs/common/ecs/scene/sceneManager.hpp"
+#include "../../../ecs/common/ecs/Model/MenuModel.hpp"
+#include "../../../ecs/common/ecs/Model/GridModel.hpp"
+#include "../../../ecs/common/ecs/Model/ArrowModel.hpp"
+#include "../../../ecs/common/ecs/components/Player/PlayerComponent.hpp"
+
 #include <SFML/Graphics.hpp>
 #include <bits/stdc++.h>
 
@@ -33,22 +34,34 @@ int main() {
     sceneManager SceneManager(true, false);
 
     SceneManager.addScene("GAME", [](Scene& scene) {
-        scene.isServerScene = true;
         float cellSize = 80.0f;
-        GridModel grid(scene, "../assets/menu_background.png", 6, 7, cellSize);
+        GridModel grid(scene, "../../assets/menu_background.png", 6, 7, cellSize);
 
         std::size_t player1 = scene.createEntity();
-        ArrowModel arrow(scene, "../assets/blue_arrow.png", cellSize, player1);
+
+        ArrowModel arrow(scene, "../../assets/blue_arrow.png", cellSize, player1);
         scene.addComponent<BindClientComponentTest>(arrow.getEntity(), 0, true); // La fleche est géré par le client 0 et l'entité est géré par le serveur
+        ActionKeyBind& actionKeyBind = scene.addComponent<ActionKeyBind>(arrow.getEntity()); // Configure les touches 
+        actionKeyBind.left = sf::Keyboard::Left;
+        actionKeyBind.right= sf::Keyboard::Right;
 
         std::size_t player2 = scene.createEntity();
-        ArrowModel arrow1(scene, "../assets/yellow_arrow.png", cellSize, player2);
+        ArrowModel arrow1(scene, "../../assets/yellow_arrow.png", cellSize, player2);
         scene.addComponent<BindClientComponentTest>(arrow1.getEntity(), 1, true); // La fleche est géré par le client 0 et l'entité est géré par le serveur
+        ActionKeyBind& actionKeyBind1 = scene.addComponent<ActionKeyBind>(arrow1.getEntity()); // Configure les touches 
+        actionKeyBind1.left = sf::Keyboard::Left;
+        actionKeyBind1.right= sf::Keyboard::Right;
 
         scene.addComponent<PlayerComponent>(player1, 1);
         scene.addComponent<PlayerComponent>(player2, 2);
         scene.addComponent<GameStateComponent>(0, player1, player2);
+
+        scene.addSystem<ArrowMovementSystem>();
+        scene.addSystem<BounceSystem>();
+        scene.addSystem<TokenPlacementSystem>();
+
     });
+
 
     SceneManager.setCurrentScene("GAME");
     SceneManager.setServerNetwork("127.0.0.1", 8090, 2, 0.0083);

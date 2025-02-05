@@ -18,17 +18,16 @@ public:
         float arrowX = gridOffsetX + initialColumn * cellSize + (cellSize / 2.0f);
         float arrowY = gridOffsetY - cellSize + 10;
         arrowEntity = arrowEntity_;
-        std::cout << arrowEntity_ << std::endl;
         scene.addComponent<PositionComponent>(arrowEntity, arrowX, arrowY);
         RenderComponent& renderComponent = scene.addComponent<RenderComponent>(arrowEntity, texturePath, true);
         scene.addComponent<InputComponent>(arrowEntity);
         scene.addComponent<BounceComponent>(arrowEntity, 0.3f, 10.0f);
         scene.addComponent<ArrowComponent>(arrowEntity, initialColumn, cellSize, 7); // 7 colonnes
-        ActionKeyBind& actionKeyBind = scene.addComponent<ActionKeyBind>(arrowEntity); // 7 colonnes
+        // ActionKeyBind& actionKeyBind = scene.addComponent<ActionKeyBind>(arrowEntity); // 7 colonnes
         
 
-        actionKeyBind.left = sf::Keyboard::Left;
-        actionKeyBind.right= sf::Keyboard::Right;
+        // actionKeyBind.left = sf::Keyboard::Left;
+        // actionKeyBind.right= sf::Keyboard::Right;
 
 
         sf::Vector2u textureSize = renderComponent.texture.getSize();
