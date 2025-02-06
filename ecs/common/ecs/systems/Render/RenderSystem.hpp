@@ -6,7 +6,8 @@
 #include "../../components/Render/RenderComponent.hpp"
 #include "../../components/Box/RectangleComponent.hpp"
 #include "../../components/Box/HoverComponent.hpp"
-#include "../../components/Text/TextComponent.hpp"
+#include "../../components/Text/TextComponent.hpp" // ⚠️ Faudrait un pour les 2 TextComponent / TextFieldComponent
+#include "../../components/Text/TextFieldComponent.hpp"
 #include "../../components/Circle/CircleComponent.hpp"
 
 #include "../Transform/BounceSystem.hpp"
@@ -14,10 +15,6 @@
 #include "../Transform/TokenPlacementSystem.hpp"
 #include "../Transform/PaddleMovementSystem.hpp"
 #include "../Transform/BallMovementSystem.hpp"
-
-
-
-
 
 #include <SFML/Graphics.hpp>
 
@@ -98,7 +95,19 @@ public:
         for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
             TextComponent* textComp = scene.getComponent<TextComponent>(it->first);
             PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
+            TextFieldComponent *textF = scene.getComponent<TextFieldComponent>(it->first);
 
+            if (textF) {
+                try {
+                    if (textF->text.getFont() != nullptr) {
+                        window.draw(textF->text);
+                    } else {
+                        std::cerr << "⚠️ ERREUR : `TextComponent` référencé sans police valide !\n";
+                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "❌ ERREUR: Exception attrapée dans RenderSystem lors de l'affichage du texte : " << e.what() << "\n";
+                }
+            }
             if (textComp && position) {
 
                 try {

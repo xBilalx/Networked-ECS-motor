@@ -27,12 +27,18 @@ public:
         initializeWindow();
     }
 
+    // void addScene(std::string sceneName, std::function<void(Scene &)> initSceneLambda)
+    // {
+    //     initScenes[sceneName] = initSceneLambda;
+    //     auto scene = std::make_shared<Scene>(this);
+    //     scenes[sceneName] = scene;
+    //     initSceneLambda(*scene);
+    // }
+
     void addScene(std::string sceneName, std::function<void(Scene &)> initSceneLambda)
     {
         initScenes[sceneName] = initSceneLambda;
-        auto scene = std::make_shared<Scene>(this);
-        scenes[sceneName] = scene;
-        initSceneLambda(*scene);
+        scenes[sceneName] = nullptr;
     }
 
     void setServerNetwork(std::string ip_, unsigned short int port_, int nbrClients_, float tickRate_)
@@ -88,17 +94,33 @@ private:
         }
     }
 
+    // bool runScene(std::string sceneName)
+    // {
+    //     auto it = scenes.find(sceneName);
+    //     if (it == scenes.end())
+    //     {
+    //         std::cout << "La scène " << sceneName << " n'existe pas\n";
+    //         return false;
+    //     }
+
+    //     return isServer ? runSceneServer(*it->second) : runSceneClient(*it->second);
+    // }
+
     bool runScene(std::string sceneName)
     {
-        auto it = scenes.find(sceneName);
-        if (it == scenes.end())
+        auto it = initScenes.find(sceneName);
+        if (it == initScenes.end())
         {
             std::cout << "La scène " << sceneName << " n'existe pas\n";
             return false;
         }
-
-        return isServer ? runSceneServer(*it->second) : runSceneClient(*it->second);
+        if (!scenes[sceneName]) {
+            scenes[sceneName] = std::make_shared<Scene>(this);
+            it->second(*scenes[sceneName]);
+        }
+        return isServer ? runSceneServer(*scenes[sceneName]) : runSceneClient(*scenes[sceneName]);
     }
+
 
     bool runSceneServer(Scene &em)
     {
