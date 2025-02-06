@@ -25,6 +25,7 @@ public:
         scene.addComponent<TextComponent>(buttonEntity, text, font, textSize, textColor);
         scene.addComponent<HoverComponent>(buttonEntity, color, hoverColor);
         scene.addComponent<OnClickComponent>(buttonEntity, action);
+        scene.addComponent<OnClickToggleComponent>(buttonEntity);
     }
 
     std::size_t getEntity() const {

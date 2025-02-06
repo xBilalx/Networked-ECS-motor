@@ -2,6 +2,8 @@
 
 #include "../../entitiesManager.hpp"
 #include "../../components/Input/InputComponent.hpp"
+#include "../../components/Text/TextFieldComponent.hpp"
+#include "../../components/State/OnClickToggleComponent.hpp"
 #include "../../components/Network/BindRemoteComponent.hpp"
 
 #include <SFML/Graphics.hpp>
@@ -10,12 +12,14 @@ class KeyboardInputSystem  {
 public:
     void handleEvent(sf::RenderWindow& window, sf::Event& event, Scene& scene, bool isServer) {
         if (window.hasFocus()) {
-
             if (event.type == sf::Event::KeyReleased) {
                 onKeyRelease(scene, event, isServer);
             }
             if (event.type == sf::Event::KeyPressed) {
                 onKeyPressed(scene, event, isServer);
+            }
+            if (event.type == sf::Event::TextEntered) {
+                handleTextInput(scene, event);
             }
         }
     }
@@ -73,6 +77,23 @@ private:
                 inputPressed = std::any_of(input->keysPressed.begin(), input->keysPressed.end(), [](const auto& pair) {
                     return pair.second;
                 });
+            }
+        }
+    }
+    void handleTextInput(Scene& scene, sf::Event& event) {
+        for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+            TextFieldComponent* textField  = scene.getComponent<TextFieldComponent>(it->first);
+            OnClickToggleComponent* isActive  = scene.getComponent<OnClickToggleComponent>(it->first);
+
+            if (textField && isActive && isActive->isFocus) {
+                if (event.text.unicode== 8) {
+                    if (!textField->dataText.empty()) {
+                        textField->dataText.pop_back();
+                    }
+                } else if (event.text.unicode >= 32 && event.text.unicode < 128) {
+                    textField->dataText += static_cast<char>(event.text.unicode);
+                }
+                textField->updateText();
             }
         }
     }
