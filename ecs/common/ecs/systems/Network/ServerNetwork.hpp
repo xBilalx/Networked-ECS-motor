@@ -30,7 +30,7 @@ class ServerNetworkSystem {
         void setXBindClient(int x) {
             maxClient = x;
             for (int i = 0; i < x;  i++) {
-                std::cout << x << std::endl;
+                std::cout << "Nbr of clients : " <<  x << std::endl;
                 bindClients.push_back(std::make_unique<BindClientsTest>());
             }
         }
@@ -38,8 +38,8 @@ class ServerNetworkSystem {
             networkManager = NetworkManager();
             return true;
         }
-        void sendClearScene(Scene& em, float dt) {
-            for (int currentBindId = 0; currentBindId < bindClients.size(); currentBindId++) {
+        void sendClearScene() {
+            for (int currentBindId = 0; currentBindId < static_cast<int>(bindClients.size()); currentBindId++) {
                 BindClientsTest* cli = bindClients[currentBindId].get();
                 if (cli->connected) {
                     std::string buffer;
@@ -60,34 +60,64 @@ class ServerNetworkSystem {
                 }
             }
             
-            int next = false;
-            for (int currentBindId = 0; currentBindId < bindClients.size(); currentBindId++) {
+            for (int currentBindId = 0; currentBindId < static_cast<int>(bindClients.size()); currentBindId++) {
                 BindClientsTest* cli = bindClients[currentBindId].get();
                 if (cli->connected) {
                     for (auto it = em.entities1.begin(); it != em.entities1.end(); it++) {
                         std::string buffer;
+                        RectangleComponent* rect = em.getComponent<RectangleComponent>(it->first);
                         InputComponent* input = em.getComponent<InputComponent>(it->first);
                         RenderComponent* render = em.getComponent<RenderComponent>(it->first);
                         PositionComponent* position = em.getComponent<PositionComponent>(it->first);
-                        BindClientComponent *bindClient = em.getComponent<BindClientComponent>(it->first);
+                        TokenComponent* token = em.getComponent<TokenComponent>(it->first);
+                        CircleComponent* circle = em.getComponent<CircleComponent>(it->first);
+                        // BindClientComponent *bindClient = em.getComponent<BindClientComponent>(it->first);
                         BindClientComponentTest *bindClientTest = em.getComponent<BindClientComponentTest>(it->first);
                         Serializer::serialize(buffer, Serializer::MessageType::ENTITY);
                         Serializer::serialize(buffer, (uint64_t)it->first);
 
+
                         if (input && bindClientTest && currentBindId == bindClientTest->bindId) {
                             Serializer::serialize(buffer, Serializer::MessageType::INPUT);
+                        }
+                        if (circle) {
+                            Serializer::serialize(buffer, Serializer::MessageType::CIRCLE);
+                            Serializer::serialize(buffer, (float)circle->circle.getPosition().x);
+                            Serializer::serialize(buffer, (float)circle->circle.getPosition().y);
+                            Serializer::serialize(buffer, (float)circle->circle.getRadius());
+                            Serializer::serialize(buffer, (uint8_t)circle->circle.getFillColor().r);
+                            Serializer::serialize(buffer, (uint8_t)circle->circle.getFillColor().g);
+                            Serializer::serialize(buffer, (uint8_t)circle->circle.getFillColor().b);
+                            Serializer::serialize(buffer, (uint8_t)circle->circle.getFillColor().a);
                         }
                         if (render) {
                             Serializer::serialize(buffer, Serializer::MessageType::RENDER);
                             Serializer::serialize(buffer, (std::string) render->pathTexture);
                         }
+                        if (rect) {
+                            Serializer::serialize(buffer, Serializer::MessageType::RECTANGLE);
+                            Serializer::serialize(buffer, (float)rect->x);
+                            Serializer::serialize(buffer, (float)rect->y);
+                            Serializer::serialize(buffer, (float)rect->width);
+                            Serializer::serialize(buffer, (float)rect->height);
+                            Serializer::serialize(buffer, (uint8_t)rect->color.r);
+                            Serializer::serialize(buffer, (uint8_t)rect->color.g);
+                            Serializer::serialize(buffer, (uint8_t)rect->color.b);
+                            Serializer::serialize(buffer, (uint8_t)rect->color.a);
+                        }
+                        if (token) {
+                            Serializer::serialize(buffer, Serializer::MessageType::TOKEN);
+                            Serializer::serialize(buffer, (int)token->playerId);
+                            // std::cout << "Send TOKEN\n";
+                        }
                         if (position) {
-                            if (bindClientTest && currentBindId == bindClientTest->bindId && !bindClientTest->ManagePosByServ) {
-                                continue;
-                            }
-                            if (bindClientTest && currentBindId == bindClientTest->bindId && bindClientTest->ManagePosByServ) {
-                                bindClientTest->ManagePosByServ = false;
-                            }
+                            // if (bindClientTest && !bindClientTest->ManagePosByServ &&currentBindId == bindClientTest->bindId && !bindClientTest->ManagePosByServ) {
+                            //     continue;
+                            // }
+                            // if (bindClientTest && currentBindId == bindClientTest->bindId && bindClientTest->ManagePosByServ) {
+                            //     bindClientTest->ManagePosByServ = false;
+                            // }
+
                             Serializer::serialize(buffer, Serializer::MessageType::POSITION);
                             Serializer::serialize(buffer, (float) position->position.x);
                             Serializer::serialize(buffer, (float) position->position.y); 
@@ -100,7 +130,7 @@ class ServerNetworkSystem {
         }
 
         void dataFromClients(Scene& em) {
-            std::vector<Packet> packets = networkManager.receiveMessages(true);
+            std::vector<Packet> packets = networkManager.receiveMessages();
             for (Packet packet : packets) {
                 Serializer::MessageType messageType = Serializer::MessageType::NOTHING;
                 while (1) {
@@ -108,8 +138,7 @@ class ServerNetworkSystem {
                     if (messageType == Serializer::MessageType::END)
                         break;
                     if (messageType == Serializer::MessageType::CONNECT) {
-                        std::cout << bindClients.size() << std::endl;
-                        for (int currentBindId = 0; currentBindId < bindClients.size(); currentBindId++) {
+                        for (int currentBindId = 0; currentBindId < static_cast<int>(bindClients.size()); currentBindId++) {
                             BindClientsTest* cli = bindClients[currentBindId].get();
                             if (!cli->connected) {
                                 cli->ipClient = packet.senderIp;
@@ -146,6 +175,16 @@ class ServerNetworkSystem {
                                         pos->position.y = y;
                                     }
                                 }
+                            }
+                            if (messageType == Serializer::MessageType::INPUT) {
+                                InputComponent* input = em.getComponent<InputComponent>(entityNbr);
+                                if (input) {
+                                    input->deserialize(packet.data);
+                                    // if (input->isKeyReleased(sf::Keyboard::Right)) {
+                                    //     std::cout << "Right Key released by" << entityNbr << std::endl;
+                                    // }
+                                }
+
                             }
                         }
                     }
