@@ -1,55 +1,35 @@
-```markdown
-# ECSNetwork
-
+# Pong and Power4
 ## Build
 
-Create the build directory:
+First intall conan :
+```
+pip install conan
+```
+Then configure conan :
+```
+conan profile detect
+```
+Then configure the build :
 ```
 mkdir build
+conan install . --output-folder=build --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
 ```
-
-Configure and generate the build files:
+Then configure some more and compile
 ```
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 cd ..
+cmake --build ./build
 ```
-
-Compile the project and move the executables to the root:
+Now launch !
 ```
-cmake --build ./build ; \
-  mv build/pong/client/pong_client . ; \
-  mv build/pong/server/pong_server . ; \
-  mv build/power4/network/client/power4_client . ; \
-  mv build/power4/network/server/power4_server . ; \
-  mv build/power4/local/power4_local .
-```
-
-## Run
-
-### For Pong
-Start the server:
-```
+# start the server of the game of your choice :
 ./pong_server
-```
-Then start the client(s):
-```
-./pong_client <ip> <username>
-```
+or
+./power4_server
 
-### For Power4
-For the network version:
-- Start the server:
-  ```
-  ./power4_server
-  ```
-- Start the client:
-  ```
-  ./power4_client <ip> <username>
-  ```
-
-For the local version:
-```
-./power4_local
-```
+# start the client of the game of your choice :
+./pong_client
+or
+./power4_client
 ```
