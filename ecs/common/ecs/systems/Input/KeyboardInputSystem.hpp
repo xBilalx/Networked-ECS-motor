@@ -10,6 +10,7 @@ class KeyboardInputSystem  {
 public:
     void handleEvent(sf::RenderWindow& window, sf::Event& event, Scene& scene, bool isServer) {
         if (window.hasFocus()) {
+
             if (event.type == sf::Event::KeyReleased) {
                 onKeyRelease(scene, event, isServer);
             }

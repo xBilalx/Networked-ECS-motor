@@ -54,12 +54,11 @@ int main() {
 
         scene.addComponent<PlayerComponent>(player1, 1);
         scene.addComponent<PlayerComponent>(player2, 2);
-        scene.addComponent<GameStateComponent>(0, player1, player2);
+        scene.addComponent<GameStateComponent>(0, player1, "../../assets/blue_bubble.png", player2, "../../assets/yellow_bubble.png");
 
         scene.addSystem<ArrowMovementSystem>();
         scene.addSystem<BounceSystem>();
         scene.addSystem<TokenPlacementSystem>();
-
     });
 
 

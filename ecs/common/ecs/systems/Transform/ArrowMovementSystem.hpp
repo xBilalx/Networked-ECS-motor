@@ -18,9 +18,6 @@ public:
             InputComponent* input = scene.getComponent<InputComponent>(entity.first);
             ActionKeyBind* actionKey = scene.getComponent<ActionKeyBind>(entity.first);
 
-
-
-
             InputComponent* inputDEbu = scene.getComponent<InputComponent>(44);
 
             if (position && arrow && grid && input && actionKey) {
@@ -40,7 +37,6 @@ public:
                         arrow->currentColumn++;
                     }
                 }
-
                 position->position.x = grid->columnPositions[arrow->currentColumn];
             }
         }

@@ -59,7 +59,7 @@ public:
                     float tokenY = grid->gridOffsetY + row * grid->cellSize + (grid->cellSize / 2.0f);
 
                     int currentPlayer = gameState->currentPlayerEntity;
-                    std::string texturePath = (currentPlayer == static_cast<int>(gameState->player1Entity)) ? "../../assets/blue_bubble.png" : "../../assets/yellow_bubble.png";
+                    std::string texturePath = (currentPlayer == static_cast<int>(gameState->player1Entity)) ? gameState->pathTexture1 : gameState->pathTexture2;
                     TokenModel token(scene, texturePath, tokenX, tokenY, currentPlayer);
 
                     grid->gridState[row][arrow->currentColumn] = currentPlayer;

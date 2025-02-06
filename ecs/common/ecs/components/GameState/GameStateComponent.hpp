@@ -12,10 +12,12 @@ struct GameStateComponent : public Component {
     bool gameOver;
     std::string winnerText;
     std::size_t player1Entity;
+    std::string pathTexture1;
     std::size_t player2Entity;
+    std::string pathTexture2;
 
-    GameStateComponent(std::size_t player1, std::size_t player2) 
-        : currentPlayerEntity(player1), gameOver(false), winnerText(""), player1Entity(player1), player2Entity(player2) {}
+    GameStateComponent(std::size_t player1, std::string pathTexture1,  std::size_t player2, std::string pathTexture2) 
+        : currentPlayerEntity(player1), gameOver(false), winnerText(""), player1Entity(player1), pathTexture1(pathTexture1), player2Entity(player2), pathTexture2(pathTexture2) {}
 
     void switchPlayer() {
         currentPlayerEntity = (currentPlayerEntity == player1Entity) ? player2Entity : player1Entity;

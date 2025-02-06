@@ -156,7 +156,6 @@ private:
 
         // il faudra les ajouter les systemes de facon générique, parce qu'on à pas besoin de ces systemes souvent par exemple !
         OnClickSytem onclickSystem(&win);
-
         while (win.isOpen())
         {
 
@@ -187,8 +186,8 @@ private:
                 keyBoardInputSystem.handleEvent(win, event, em, true);
             }
 
-            // inputSystem.update(em, win);
-            movementSystem.update(em, dt);
+            // movementSystem.update(em, dt);
+            em.updateSystems(dt);
 
             if (isNetworked)
             {
