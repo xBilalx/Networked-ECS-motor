@@ -15,7 +15,7 @@
 class MenuModel {
 public:
     MenuModel(Scene& scene, const std::string& backgroundTexture, 
-              std::vector<std::tuple<std::string, float, float, float, float, sf::Color, sf::Color, sf::Color>> menuItems, sf::Font& font) {
+              std::vector<std::tuple<std::string, float, float, float, float, sf::Color, sf::Color, sf::Color, std::function<void (Scene&)>>> menuItems, sf::Font& font) {
         menuEntity = scene.createEntity();
         scene.addComponent<PositionComponent>(menuEntity, 0, 0);
         scene.addComponent<RenderComponent>(menuEntity, backgroundTexture, true);
@@ -29,12 +29,12 @@ public:
         float defaultStartY = (windowSize.y - totalButtonHeight) / 2.0f;
         float yOffset = defaultStartY;
 
-        for (const auto& [text, x, y, width, height, baseColor, hoverColor, textColor] : menuItems) {
+        for (const auto& [text, x, y, width, height, baseColor, hoverColor, textColor, action] : menuItems) {
             float btnWidth = (width == -1) ? defaultButtonWidth : width;
             float btnHeight = (height == -1) ? defaultButtonHeight : height;
             float btnX = (x == -1) ? (windowSize.x / 2.0f) - (btnWidth / 2.0f) : x;
             float btnY = (y == -1) ? yOffset : y;
-            ButtonModel button(scene, btnX, btnY, btnWidth, btnHeight, baseColor, text, font, 24, textColor, hoverColor);
+            ButtonModel button(scene, btnX, btnY, btnWidth, btnHeight, baseColor, text, font, 24, textColor, hoverColor, action);
             buttonEntities.push_back(button.getEntity());
             yOffset += btnHeight + 20; 
         }

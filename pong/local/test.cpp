@@ -32,7 +32,7 @@
 // }
 
 int main() {
-    sceneManager SceneManager(true, false);
+    sceneManager SceneManager(false, false, true);
 
     SceneManager.addScene("PongScene", [](Scene& scene) {
         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
@@ -52,18 +52,25 @@ int main() {
             scene.addComponent<RectangleComponent>(dash, centerX, startY, 5, dashHeight, sf::Color::White);
             startY += dashHeight + spaceBetween;
         }
-        std::size_t paddleLeft = scene.createEntity();
-        std::cout << "Entité paddle left -> " << paddleLeft << std::endl;
-        scene.addComponent<BindClientComponentTest>(paddleLeft, 0, true); // Le Input/Pos paddle est géré par le client 0 
 
+        std::size_t paddleLeft = scene.createEntity();
         PaddleModel paddle1(scene, paddleLeft, 50, windowSize.y / 2.0f, 1, paddleWidth, paddleHeight);
+        ActionKeyBind& actionKeyBind1 = scene.addComponent<ActionKeyBind>(paddleLeft); // Configure les touches 
+        actionKeyBind1.left = sf::Keyboard::Q;
+        actionKeyBind1.right= sf::Keyboard::D;
+        actionKeyBind1.forward= sf::Keyboard::Z;
+        actionKeyBind1.back= sf::Keyboard::S;
 
         std::size_t paddlRight = scene.createEntity();
-        scene.addComponent<BindClientComponentTest>(paddlRight, 1, true); // Le Input/Pos paddle est géré par le client 0 
         PaddleModel paddle2(scene, paddlRight, windowSize.x - 50, windowSize.y / 2.0f, 2, paddleWidth, paddleHeight);
+        ActionKeyBind& actionKeyBind2 = scene.addComponent<ActionKeyBind>(paddlRight); // Configure les touches 
+        actionKeyBind2.left = sf::Keyboard::Left;
+        actionKeyBind2.right= sf::Keyboard::Right;
+        actionKeyBind2.forward= sf::Keyboard::Up;
+        actionKeyBind2.back= sf::Keyboard::Down;
 
         BallModel ball(scene, windowSize.x / 2.0f, windowSize.y / 2.0f, ballRadius);
-
+        
         static sf::Font font;
         if (!font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")) {
             std::cerr << "❌ ERREUR: Impossible de charger la police !" << std::endl;
@@ -75,6 +82,7 @@ int main() {
         float scoreY = 20.0f; // Position verticale commune
 
         ScoreModel score(scene, font, score1X, scoreY, score2X, scoreY);
+        // scene.addSystem<PaddleMovementSystem>();
         scene.addSystem<MovementSystem>();
         scene.addSystem<BallMovementSystem>();
     });

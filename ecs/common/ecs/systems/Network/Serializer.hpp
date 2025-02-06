@@ -49,5 +49,8 @@ public:
         NEXT,
         END,
         CLEAR,
+        RECTANGLE,
+        TOKEN,
+        CIRCLE,
     };
 };

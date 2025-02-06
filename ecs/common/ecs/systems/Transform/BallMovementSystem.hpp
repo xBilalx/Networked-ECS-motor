@@ -18,7 +18,7 @@
 #include <complex>
 
 
-class BallMovementSystem {
+class BallMovementSystem : public ISystem {
 public:
     void update(Scene& scene, float dt) {
         for (auto& entity : scene.entities1) {

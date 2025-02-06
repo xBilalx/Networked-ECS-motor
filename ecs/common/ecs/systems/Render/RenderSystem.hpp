@@ -21,17 +21,11 @@
 
 #include <SFML/Graphics.hpp>
 
-// Pour une futur classe
-class ISystem
-{
-    virtual void update(Scene& scene, float dt) = 0;
-};
-
 class RenderSystem {
 public:
     void createWindow(unsigned int modeWidth, unsigned int modeHeight, std::string windowName) {
         window.create(sf::VideoMode(modeWidth, modeHeight), windowName);
-        window.setFramerateLimit(120);
+        window.setFramerateLimit(30);
     }
 
     sf::RenderWindow& getWindow() {
@@ -42,19 +36,6 @@ public:
         window.clear();
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-        // Mise à jour des systèmes
-        BounceSystem bounceSystem;
-        ArrowMovementSystem arrowMovementSystem;
-        TokenPlacementSystem tokenPlacementSystem;
-        PaddleMovementSystem paddleMovementSystem;
-        BallMovementSystem ballMovementSystem;
-
-        bounceSystem.update(scene, 1.0f / 60.0f);
-        arrowMovementSystem.update(scene);
-        tokenPlacementSystem.update(scene);
-        paddleMovementSystem.update(scene);
-        ballMovementSystem.update(scene, 1.0f / 60.0f);
-
         std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
         std::vector<std::pair<RenderComponent*, PositionComponent*>> tokens;
         std::vector<std::pair<CircleComponent*, PositionComponent*>> balls;
@@ -62,6 +43,7 @@ public:
 
         // 🔹 Première passe : affichage des éléments de base (ligne centrale, autres éléments fixes)
         for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+
             RectangleComponent* rect = scene.getComponent<RectangleComponent>(it->first);
             RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
             PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
@@ -72,20 +54,25 @@ public:
             // 🔹 Dessiner les éléments statiques (ligne centrale, obstacles, autres rectangles)
             if (rect && !paddle) {
                 sf::RectangleShape shape(sf::Vector2f(rect->width, rect->height));
-                shape.setPosition(rect->x, rect->y);
+                if (!position) { // C'est pas bon ca
+                    shape.setPosition(rect->x, rect->y);
+                } else {
+                    shape.setPosition(position->position.x, position->position.y);
+                }
                 shape.setFillColor(rect->color);
                 window.draw(shape);
             }
 
             // 🔹 Gérer les sprites (flèches, jetons, balles)
             if (render) {
+
                 if (position) {
                     render->sprite.setPosition(position->position.x, position->position.y);
                 } else {
                     render->sprite.setPosition(0, 0);
                 }
 
-                if (render->pathTexture.toAnsiString().find("arrow") != std::string::npos) {
+                if (render->pathTexture.find("arrow") != std::string::npos) {
                     arrows.push_back({render, position});
                 } else if (token) {
                     tokens.push_back({render, position});
@@ -96,11 +83,13 @@ public:
 
             // 🔹 Stocker les balles pour affichage
             if (circle) {
+
                 balls.push_back({circle, position});
             }
 
             // 🔹 Stocker les paddles pour les dessiner plus tard
             if (paddle && position) {
+
                 paddles.push_back({paddle, position});
             }
         }
@@ -111,6 +100,7 @@ public:
             PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
 
             if (textComp && position) {
+
                 try {
                     if (textComp->text.getFont() != nullptr) {
                         textComp->text.setPosition(position->position.x, position->position.y);
@@ -134,6 +124,7 @@ public:
 
         // 🔹 Quatrième passe : afficher les balles
         for (auto& ball : balls) {
+
             if (ball.second) {
                 ball.first->circle.setPosition(ball.second->position.x, ball.second->position.y);
             }
@@ -155,7 +146,6 @@ public:
             }
             window.draw(arrow.first->sprite);
         }
-
         window.display();
     }
 

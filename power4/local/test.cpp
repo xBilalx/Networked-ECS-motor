@@ -2,15 +2,9 @@
 #include "../../ecs/common/ecs/Model/MenuModel.hpp"
 #include "../../ecs/common/ecs/Model/GridModel.hpp"
 #include "../../ecs/common/ecs/Model/ArrowModel.hpp"
-#include "../../ecs/common/ecs/Model/ScoreModel.hpp"
-#include "../../ecs/common/ecs/Model/BallModel.hpp"
-#include "../../ecs/common/ecs/Model/PaddleModel.hpp"
-#include "../../ecs/common/ecs/components/Input/InputComponent.hpp"
 #include "../../ecs/common/ecs/components/Player/PlayerComponent.hpp"
+
 #include <SFML/Graphics.hpp>
-#include <bits/stdc++.h>
-
-
 #include <bits/stdc++.h>
 
 std::function<void (Scene&)> onClickPlayButton = [](Scene& em) {
@@ -19,7 +13,8 @@ std::function<void (Scene&)> onClickPlayButton = [](Scene& em) {
 };
 
 int main() {
-    sceneManager SceneManager(false, false);
+    sceneManager SceneManager(false, false, true);
+
 
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf");
@@ -34,15 +29,31 @@ int main() {
         MenuModel menu(scene, "../../assets/menu_background.png", menuItems, font);
     });
 
-    SceneManager.managePos = false;
-    // SceneManager.managePos = true; // 🟢 Manage Pos coté serveur (a opti)
     SceneManager.addScene("GAME", [](Scene& scene) {
-        scene.isNetworked = true;
-        scene.serverAdress = "127.0.0.1";
-        scene.port = 8090;
-        // scene.addSystem<MovementSystem>(); //🟢 Manage Pos coté serveur (a opti)
+        float cellSize = 80.0f;
+        GridModel grid(scene, "../assets/menu_background.png", 6, 7, cellSize);
 
+        std::size_t player1 = scene.createEntity();
+
+        ArrowModel arrow(scene, "../assets/blue_arrow.png", cellSize, player1);
+        ActionKeyBind& actionKeyBind = scene.addComponent<ActionKeyBind>(arrow.getEntity()); // Configure les touches 
+        actionKeyBind.left = sf::Keyboard::Left;
+        actionKeyBind.right= sf::Keyboard::Right;
+
+        std::size_t player2 = scene.createEntity();
+        ArrowModel arrow1(scene, "../assets/yellow_arrow.png", cellSize, player2);
+        ActionKeyBind& actionKeyBind1 = scene.addComponent<ActionKeyBind>(arrow1.getEntity()); // Configure les touches 
+        actionKeyBind1.left = sf::Keyboard::Q;
+        actionKeyBind1.right= sf::Keyboard::D;
+
+        scene.addComponent<GameStateComponent>(0, player1, "../assets/blue_bubble.png", player2, "../assets/yellow_bubble.png");
+
+        scene.addSystem<ArrowMovementSystem>();
+        scene.addSystem<BounceSystem>();
+        scene.addSystem<TokenPlacementSystem>();
     });
+
+
     SceneManager.setCurrentScene("MENU");
     SceneManager.run();
 }

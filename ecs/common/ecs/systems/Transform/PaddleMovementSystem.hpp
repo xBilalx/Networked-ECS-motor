@@ -12,11 +12,11 @@
 #include "../../components/PlayerInput/PlayerInputComponent.hpp"
 
 
-class PaddleMovementSystem {
+class PaddleMovementSystem : public ISystem {
 public:
-    void update(Scene& scene) {
+    void update(Scene& scene, float dt) {
         std::cerr << "🛠 Mise à jour de PaddleMovementSystem\n";
-
+        std::cout << "MIAOw\n";
         // Parcours de chaque entité possédant les composants nécessaires
         for (auto& entity : scene.entities1) {
             PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);

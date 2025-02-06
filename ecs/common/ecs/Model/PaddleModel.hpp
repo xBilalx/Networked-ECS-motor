@@ -10,7 +10,7 @@
 
 class PaddleModel {
 public:
-    PaddleModel(Scene& scene, float x, float y, int playerId, float width = 20.0f, float height = 100.0f) {
+    PaddleModel(Scene& scene, std::size_t paddleEntity, float x, float y, int playerId, float width = 20.0f, float height = 100.0f) {
         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
         sf::Vector2u windowSize = renderSystem.getWindow().getSize();
         float screenMiddle = windowSize.x / 2.0f;
@@ -20,12 +20,13 @@ public:
         float maxY = windowSize.y - height;
         x = std::clamp(x, minX, maxX);
         y = std::clamp(y, minY, maxY);
-        paddleEntity = scene.createEntity();
         scene.addComponent<PositionComponent>(paddleEntity, x, y);
         scene.addComponent<RectangleComponent>(paddleEntity, x, y, width, height, sf::Color::White);
+        scene.addComponent<InputComponent>(paddleEntity);
         scene.addComponent<PlayerInputComponent>(paddleEntity, playerId);
         scene.addComponent<CollisionComponent>(paddleEntity, width, height);
         scene.addComponent<PaddleComponent>(paddleEntity, playerId, 6.0f, width, height, minX, maxX, minY, maxY);
+        scene.addComponent<LimitMovementComponent>(paddleEntity,  minX, minY, maxX, maxY);
     }
 
     std::size_t getEntity() const {
