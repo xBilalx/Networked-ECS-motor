@@ -3,6 +3,8 @@
 #include "../../../ecs/common/ecs/Model/GridModel.hpp"
 #include "../../../ecs/common/ecs/Model/ArrowModel.hpp"
 #include "../../../ecs/common/ecs/components/Player/PlayerComponent.hpp"
+#include "../../ecs/common/ecs/systems/Transform/GameStateSystem.hpp"
+
 #include <SFML/Graphics.hpp>
 #include <bits/stdc++.h>
 
@@ -24,8 +26,9 @@ int main() {
         std::vector<std::tuple<std::string, float, float, float, float, sf::Color, sf::Color, sf::Color, std::function<void (Scene&)>>> menuItems = {
             {"Play", -1, -1, -1, -1,sf::Color::Blue, sf::Color(70, 70, 200), sf::Color::White, onClickPlayButton},
         };
-        MenuModel menu(scene, "power4/assets/menu_backgroun.png", menuItems, font);
+        MenuModel menu(scene, "", menuItems, font);
     });
+
     SceneManager.addScene("GAME", [](Scene& scene) {
         scene.isNetworked = true;
         scene.serverAdress = "127.0.0.1";

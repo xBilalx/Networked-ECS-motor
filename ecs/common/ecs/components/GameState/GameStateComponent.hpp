@@ -9,7 +9,9 @@
 
 struct GameStateComponent : public Component {
     std::size_t currentPlayerEntity;
-    bool gameOver;
+    bool gameOver = true;
+    bool isRun;
+    bool winner;
     std::string winnerText;
     std::size_t player1Entity;
     std::string pathTexture1;
