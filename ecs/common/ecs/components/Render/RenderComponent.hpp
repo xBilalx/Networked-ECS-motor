@@ -3,14 +3,15 @@
 #include "../Component.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
-
 struct RenderComponent : public Component {
     sf::Texture texture;
     sf::Sprite sprite;
     std::string pathTexture;
     bool newTexture = false;
+    bool isBackground = false; // Ajout de ce membre
 
-    RenderComponent(std::string pathTexture, bool load) : pathTexture(pathTexture) {
+    RenderComponent(std::string pathTexture, bool load, bool isBackground = false) 
+        : pathTexture(pathTexture), isBackground(isBackground) {
         if (load) {
             if (!texture.loadFromFile(pathTexture)) {
                 std::cerr << "Erreur: Impossible de charger la texture \"" << pathTexture << "\"\n";
