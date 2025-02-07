@@ -33,52 +33,89 @@ class RenderSystem {
             window.clear();
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
     
-            // ----- Première passe : dessiner les fonds -----
-            // On dessine ici toutes les entités dont le RenderComponent indique qu'il s'agit d'un background.
-            for (auto& entity : scene.entities1) {
-                RenderComponent* render = scene.getComponent<RenderComponent>(entity.first);
-                PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
-                if (render && render->isBackground) {
-                    if (position)
-                        render->sprite.setPosition(position->position.x, position->position.y);
-                    else
-                        render->sprite.setPosition(0, 0);
-                    window.draw(render->sprite);
-                }
-            }
+            std::vector<std::pair<RenderComponent*, PositionComponent*>> arrows;
+            std::vector<std::pair<RenderComponent*, PositionComponent*>> tokens;
+            std::vector<std::pair<CircleComponent*, PositionComponent*>> balls;
+            std::vector<std::pair<PaddleComponent*, PositionComponent*>> paddles;
     
-            // ----- Deuxième passe : dessiner les boutons et autres rectangles interactifs avec hover -----
-            for (auto& entity : scene.entities1) {
-                RectangleComponent* rect = scene.getComponent<RectangleComponent>(entity.first);
-                HoverComponent* hover = scene.getComponent<HoverComponent>(entity.first);
-                PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
+            // 🔹 Première passe : affichage des éléments de base (ligne centrale, autres éléments fixes)
+            for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
     
-                if (rect) {
+                RectangleComponent* rect = scene.getComponent<RectangleComponent>(it->first);
+                RenderComponent* render = scene.getComponent<RenderComponent>(it->first);
+                PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
+                TokenComponent* token = scene.getComponent<TokenComponent>(it->first);
+                CircleComponent* circle = scene.getComponent<CircleComponent>(it->first);
+                PaddleComponent* paddle = scene.getComponent<PaddleComponent>(it->first);
+
+                
+                // 🔹 Dessiner les éléments statiques (ligne centrale, obstacles, autres rectangles)
+                if (rect && !paddle) {
                     sf::RectangleShape shape(sf::Vector2f(rect->width, rect->height));
-                    // Positionnement : privilégier le PositionComponent si présent
-                    if (position)
-                        shape.setPosition(position->position.x, position->position.y);
-                    else
+                    if (!position) { // C'est pas bon ca
                         shape.setPosition(rect->x, rect->y);
-    
-                    // Si l'entité possède un HoverComponent, mettre à jour l'état de hover
-                    if (hover) {
-                        sf::FloatRect bounds = shape.getGlobalBounds();
-                        hover->isHovered = bounds.contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-                        // La couleur est choisie en fonction de l'état de hover
-                        shape.setFillColor(hover->isHovered ? hover->hoverColor : rect->color);
                     } else {
-                        shape.setFillColor(rect->color);
+                        shape.setPosition(position->position.x, position->position.y);
                     }
+                    shape.setFillColor(rect->color);
                     window.draw(shape);
                 }
+    
+                // 🔹 Gérer les sprites (flèches, jetons, balles)
+                if (render) {
+    
+                    if (position) {
+                        render->sprite.setPosition(position->position.x, position->position.y);
+                    } else {
+                        render->sprite.setPosition(0, 0);
+                    }
+    
+                    if (render->pathTexture.find("arrow") != std::string::npos) {
+                        arrows.push_back({render, position});
+                    } else if (token) {
+                        tokens.push_back({render, position});
+                    } else {
+                        window.draw(render->sprite);
+                    }
+                }
+    
+                // 🔹 Stocker les balles pour affichage
+                if (circle) {
+    
+                    balls.push_back({circle, position});
+                }
+    
+                // 🔹 Stocker les paddles pour les dessiner plus tard
+                if (paddle && position) {
+    
+                    paddles.push_back({paddle, position});
+                }
             }
     
-            // ----- Troisième passe : dessiner les textes -----
-            for (auto& entity : scene.entities1) {
-                TextComponent* textComp = scene.getComponent<TextComponent>(entity.first);
-                PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
-                RectangleComponent* rect = scene.getComponent<RectangleComponent>(entity.first);
+            // 🔹 Deuxième passe : afficher les textes
+            for (auto it = scene.entities1.begin(); it != scene.entities1.end(); it++) {
+                TextComponent* textComp = scene.getComponent<TextComponent>(it->first);
+                PositionComponent* position = scene.getComponent<PositionComponent>(it->first);
+                TextFieldComponent *textF = scene.getComponent<TextFieldComponent>(it->first);
+                RectangleComponent* rect = scene.getComponent<RectangleComponent>(it->first);
+                HoverComponent* hover = scene.getComponent<HoverComponent>(it->first);
+
+                if (rect && hover) {
+                    sf::RectangleShape buttonShape(sf::Vector2f(rect->width, rect->height));
+                    if (position) {
+                        buttonShape.setPosition(position->position.x, position->position.y);
+                    } else {
+                        buttonShape.setPosition(rect->x, rect->y);
+                    }
+                    if (hover) {
+                        sf::FloatRect buttonBounds(rect->x, rect->y, rect->width, rect->height);
+                        hover->isHovered = buttonBounds.contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+                        buttonShape.setFillColor(hover->isHovered ? hover->hoverColor : rect->color);
+                    } else {
+                        buttonShape.setFillColor(rect->color);
+                    }
+                    window.draw(buttonShape);
+                }
 
                 if (textComp && position && rect) {
                     float offsetX = rect->width / 2 - textComp->text.getLocalBounds().width / 2;
@@ -88,22 +125,51 @@ class RenderSystem {
                     window.draw(textComp->text);
                 }
                 
-            }
-    
-            // ----- Quatrième passe : dessiner les autres sprites interactifs (non background) -----
-            for (auto& entity : scene.entities1) {
-                RenderComponent* render = scene.getComponent<RenderComponent>(entity.first);
-                PositionComponent* position = scene.getComponent<PositionComponent>(entity.first);
-                // On dessine ici les sprites qui ne sont pas des fonds (isBackground == false)
-                if (render && !render->isBackground) {
-                    if (position)
-                        render->sprite.setPosition(position->position.x, position->position.y);
-                    else
-                        render->sprite.setPosition(0, 0);
-                    window.draw(render->sprite);
+                if (textF) {
+                    try {
+                        if (textF->text.getFont() != nullptr) {
+                            window.draw(textF->text);
+                        } else {
+                            std::cerr << "⚠️ ERREUR : `TextComponent` référencé sans police valide !\n";
+                        }
+                    } catch (const std::exception& e) {
+                        std::cerr << "❌ ERREUR: Exception attrapée dans RenderSystem lors de l'affichage du texte : " << e.what() << "\n";
+                    }
                 }
             }
     
+            // 🔹 Troisième passe : afficher les paddles
+            for (auto& paddle : paddles) {
+                sf::RectangleShape paddleShape(sf::Vector2f(20.0f, 100.0f)); // ⚠️ Vérifier la bonne taille
+                paddleShape.setPosition(paddle.second->position.x, paddle.second->position.y);
+                paddleShape.setFillColor(sf::Color::White);
+                window.draw(paddleShape);
+            }
+    
+            // 🔹 Quatrième passe : afficher les balles
+            for (auto& ball : balls) {
+    
+                if (ball.second) {
+                    ball.first->circle.setPosition(ball.second->position.x, ball.second->position.y);
+                }
+                window.draw(ball.first->circle);
+            }
+    
+            // 🔹 Cinquième passe : afficher les jetons avant la flèche
+            for (auto& token : tokens) {
+                if (token.second) {
+                    token.first->sprite.setPosition(token.second->position.x, token.second->position.y);
+                }
+                window.draw(token.first->sprite);
+            }
+    
+            // 🔹 Sixième passe : afficher les flèches en dernier
+            for (auto& arrow : arrows) {
+                if (arrow.second) {
+                    arrow.first->sprite.setPosition(arrow.second->position.x, arrow.second->position.y);
+                }
+                window.draw(arrow.first->sprite);
+            }
             window.display();
         }
     
