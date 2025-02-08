@@ -27,6 +27,7 @@ public:
         scene.addComponent<CollisionComponent>(paddleEntity, width, height);
         scene.addComponent<PaddleComponent>(paddleEntity, playerId, 6.0f, width, height, minX, maxX, minY, maxY);
         scene.addComponent<LimitMovementComponent>(paddleEntity,  minX, minY, maxX, maxY);
+        scene.addComponent<RenderComponent>(paddleEntity, 1);
     }
 
     std::size_t getEntity() const {

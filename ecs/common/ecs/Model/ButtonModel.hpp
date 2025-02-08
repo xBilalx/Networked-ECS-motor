@@ -21,11 +21,11 @@ public:
         buttonEntity = scene.createEntity();
         scene.addComponent<PositionComponent>(buttonEntity, x, y);
         scene.addComponent<RectangleComponent>(buttonEntity, x, y, width, height, color);
-        scene.addComponent<RenderComponent>(buttonEntity, "", true);
         scene.addComponent<TextComponent>(buttonEntity, text, font, textSize, textColor);
         scene.addComponent<HoverComponent>(buttonEntity, color, hoverColor);
         scene.addComponent<OnClickComponent>(buttonEntity, action);
         scene.addComponent<OnClickToggleComponent>(buttonEntity);
+        scene.addComponent<RenderComponent>(buttonEntity, 1);
     }
 
     std::size_t getEntity() const {

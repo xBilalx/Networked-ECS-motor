@@ -35,7 +35,7 @@ int main() {
 
     SceneManager.addScene("GAME", [](Scene& scene) {
         float cellSize = 80.0f;
-        GridModel grid(scene, "power4/assets/menu_background.pn", 6, 7, cellSize);
+        GridModel grid(scene, "power4/assets/menu_background.png", 6, 7, cellSize);
 
         std::size_t player1 = scene.createEntity();
 

@@ -26,27 +26,27 @@ int main() {
             {"Exit", -1, -1, -1, -1, sf::Color::Blue, sf::Color(70, 70, 200), sf::Color::White, [](Scene& em) {}}
         };
 
-        MenuModel menu(scene, "../../assets/menu_background.png", menuItems, font);
+        MenuModel menu(scene, "power4/assets/menu_background.png", menuItems, font);
     });
 
     SceneManager.addScene("GAME", [](Scene& scene) {
         float cellSize = 80.0f;
-        GridModel grid(scene, "../assets/menu_background.png", 6, 7, cellSize);
+        GridModel grid(scene, "power4/assets/menu_background.png", 6, 7, cellSize);
 
         std::size_t player1 = scene.createEntity();
 
-        ArrowModel arrow(scene, "../assets/blue_arrow.png", cellSize, player1);
+        ArrowModel arrow(scene, "power4/assets/blue_arrow.png", cellSize, player1);
         ActionKeyBind& actionKeyBind = scene.addComponent<ActionKeyBind>(arrow.getEntity()); // Configure les touches 
         actionKeyBind.left = sf::Keyboard::Left;
         actionKeyBind.right= sf::Keyboard::Right;
 
         std::size_t player2 = scene.createEntity();
-        ArrowModel arrow1(scene, "../assets/yellow_arrow.png", cellSize, player2);
+        ArrowModel arrow1(scene, "power4/assets/yellow_arrow.png", cellSize, player2);
         ActionKeyBind& actionKeyBind1 = scene.addComponent<ActionKeyBind>(arrow1.getEntity()); // Configure les touches 
         actionKeyBind1.left = sf::Keyboard::Q;
         actionKeyBind1.right= sf::Keyboard::D;
 
-        scene.addComponent<GameStateComponent>(0, player1, "../assets/blue_bubble.png", player2, "../assets/yellow_bubble.png");
+        scene.addComponent<GameStateComponent>(0, player1, "power4/assets/blue_bubble.png", player2, "power4/assets/yellow_bubble.png");
 
         scene.addSystem<ArrowMovementSystem>();
         scene.addSystem<BounceSystem>();

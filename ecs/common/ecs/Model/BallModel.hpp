@@ -16,12 +16,13 @@ public:
         sf::Vector2u windowSize = renderSystem.getWindow().getSize();
 
         ballEntity = scene.createEntity();
-
-        // Ajout des composants
+        std::cout << "Balle nbr -> " << ballEntity << std::endl;
+        // Ajout des composants 
         scene.addComponent<PositionComponent>(ballEntity, x, y);
         scene.addComponent<CircleComponent>(ballEntity, x, y, radius, sf::Color::White);
         scene.addComponent<CollisionComponent>(ballEntity, radius * 2, radius * 2);
         scene.addComponent<BallComponent>(ballEntity, speed, windowSize.x, windowSize.y); // Ajout des limites de l'écran
+        scene.addComponent<RenderComponent>(ballEntity, 1);
     }
 
     std::size_t getEntity() const {

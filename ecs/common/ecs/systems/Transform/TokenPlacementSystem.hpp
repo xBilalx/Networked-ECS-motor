@@ -143,17 +143,17 @@ private:
         for (auto &entity : scene.entities1)
         {
             ArrowComponent *arrow = scene.getComponent<ArrowComponent>(entity.first);
-            RenderComponent *render = scene.getComponent<RenderComponent>(entity.first);
+            SpriteComponent *sprite = scene.getComponent<SpriteComponent>(entity.first);
 
-            if (arrow && render)
+            if (arrow && sprite)
             {
-                render->pathTexture = (currentPlayer == 1) ? "../assets/blue_arrow.png" : "../assets/yellow_arrow.png";
-                std::cout << render->pathTexture << std::endl;
-                if (!render->texture.loadFromFile(render->pathTexture))
+                sprite->pathTexture = (currentPlayer == 1) ? "power4/assets/blue_arrow.png" : "power4/assets/yellow_arrow.png";
+                std::cout << sprite->pathTexture << std::endl;
+                if (!sprite->texture.loadFromFile(sprite->pathTexture))
                 {
-                    std::cerr << "Impossible de charger la texture de la flèche: " << render->pathTexture << std::endl;
+                    std::cerr << "Impossible de charger la texture de la flèche: " << sprite->pathTexture << std::endl;
                 }
-                render->sprite.setTexture(render->texture);
+                sprite->sprite.setTexture(sprite->texture);
             }
         }
     }
