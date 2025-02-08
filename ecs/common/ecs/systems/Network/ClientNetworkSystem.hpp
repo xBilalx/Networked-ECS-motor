@@ -9,10 +9,9 @@
 class ClientNetworkSystem
 {
 public:
-    ClientNetworkSystem(std::string serverIp, uint16_t serverPort, bool managePos_, float coolDown = 0) : serverIp(serverIp), serverPort(serverPort),  managePos(managePos_) ,coolDown(coolDown), currentTime(0) {}
+    ClientNetworkSystem(std::string serverIp, uint16_t serverPort, bool managePos_, float coolDown = 0.01667) : serverIp(serverIp), serverPort(serverPort),  managePos(managePos_) ,coolDown(coolDown), currentTime(0) {}
     bool createSocket()
     {
-        
         networkManager = NetworkManager();
         return true;
     }
@@ -243,6 +242,15 @@ public:
         Serializer::serialize(buffer, Serializer::MessageType::CONNECT);
         Serializer::serialize(buffer, Serializer::MessageType::END);
         networkManager.sendTo(buffer, serverIp, serverPort);
+    }
+
+    void setIpPort(std::string ipServer, u_int16_t portServer) {
+        serverIp = ipServer;
+        serverPort = portServer;
+    }
+
+    void setTickRate(float cooldown_) {
+        coolDown = cooldown_;
     }
 
 private:

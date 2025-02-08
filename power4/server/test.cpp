@@ -63,6 +63,6 @@ int main() {
 
 
     SceneManager.setCurrentScene("GAME");
-    SceneManager.setServerNetwork("127.0.0.1", 8090, 2, 0.0083);
+    SceneManager.setServerNetwork("0.0.0.0", 8090, 2, 0.0083);
     SceneManager.run();
 }

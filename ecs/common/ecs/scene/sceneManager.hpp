@@ -49,6 +49,14 @@ public:
         tickRate = tickRate_;
     }
 
+    void initServerNetwork(std::string ipServer, uint16_t portServer, bool managePos_, float tickRate_) {
+        clientNetworkSystemTest = std::make_unique<ClientNetworkSystem>(ipServer, portServer, managePos_, tickRate_);
+    }
+
+    std::unique_ptr<ClientNetworkSystem>& getClientNetworkSystem() {
+        return clientNetworkSystemTest;
+    }
+
     void setCurrentScene(std::string scene)
     {
         currentScene = scene;
@@ -171,16 +179,19 @@ private:
         // InputSystem inputSystem;
         TimeSystem timeSystem;
         MovementSystem movementSystem;
-        std::cout << "-z-fez-f-ez>>> " << managePos << std::endl;
-        ClientNetworkSystem clientNetworkSystem(em.serverAdress, em.port, managePos, em.tickRate);
         sf::Clock clock;
         sf::RenderWindow &win = renderSystem.getWindow();
         bool chechk = false;
         bool isNetworked = em.isNetworked;
         KeyboardInputSystem keyBoardInputSystem;
 
-        // il faudra les ajouter les systemes de facon générique, parce qu'on à pas besoin de ces systemes souvent par exemple !
+        if (isNetworked && !clientNetworkSystemTest) {
+            std::cout << "Scene Networked but Client Network isn't used. Please use initClientNetwork function !" << std::endl;
+            return false;
+        }
+
         OnClickSytem onclickSystem(&win);
+
         while (win.isOpen())
         {
 
@@ -193,7 +204,8 @@ private:
             {
                 if (!chechk)
                 {
-                    clientNetworkSystem.test(); // Envoie un paquet CONNECT mais a upgrade
+                    std::cout << "MIOAw\n";
+                    clientNetworkSystemTest.get()->test(); // Envoie un paquet CONNECT mais a upgrade
                     chechk = true;
                 }
             }
@@ -216,8 +228,8 @@ private:
 
             if (isNetworked)
             {
-                clientNetworkSystem.dataToServer(em, dt);
-                clientNetworkSystem.dataFromServer(em);
+                clientNetworkSystemTest.get()->dataToServer(em, dt);
+                clientNetworkSystemTest.get()->dataFromServer(em);
             }
 
             renderSystem.update(em);
@@ -234,6 +246,7 @@ private:
     std::string currentScene;
     RenderSystem renderSystem;
     std::unique_ptr<ServerNetworkSystem> serverNetworkSystem;
+    std::unique_ptr<ClientNetworkSystem> clientNetworkSystemTest;
 
     std::string ip = "127.0.0.1";
     std::uint16_t port = 8089;

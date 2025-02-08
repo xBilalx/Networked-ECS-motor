@@ -26,7 +26,7 @@ struct TextFieldComponent : public Component {
         float textX = x + (widht / 2.0f) - (textBounds.width / 2.0f);
         float textY = y + (height / 2.0f) - (textBounds.height / 2.0f) - textBounds.top; // Ajustement pour le décalage SFML
 
-        text.setPosition(textX, textY);
+        text.setPosition(x, y);
     }
     void updateText() {
         text.setString(dataText);

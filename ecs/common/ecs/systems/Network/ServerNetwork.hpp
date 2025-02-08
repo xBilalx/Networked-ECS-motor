@@ -30,7 +30,7 @@ class ServerNetworkSystem {
         void setXBindClient(int x) {
             maxClient = x;
             for (int i = 0; i < x;  i++) {
-                std::cout << "Nbr of clients : " <<  x << std::endl;
+                // std::cout << "Nbr of clients : " <<  x << std::endl;
                 bindClients.push_back(std::make_unique<BindClientsTest>());
             }
         }
