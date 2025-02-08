@@ -20,6 +20,7 @@ public:
         scene.addComponent<RectangleComponent>(entity, x, y, width, height);
         scene.addComponent<OnClickToggleComponent>(entity);
         scene.addComponent<TextFieldComponent>(entity, x, y, width, height, defautText);
+        scene.addComponent<RenderComponent>(entity, 1);
     }
     std::size_t getEntity() const
     {

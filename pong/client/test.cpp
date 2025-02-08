@@ -1,5 +1,5 @@
 #include "../../ecs/common/ecs/scene/sceneManager.hpp"
-#include "../../ecs/common/ecs/Model/MenuModel.hpp"
+#include "../../ecs/common/ecs/Model/MenuModelNetwork.hpp"
 #include "../../ecs/common/ecs/Model/GridModel.hpp"
 #include "../../ecs/common/ecs/Model/ArrowModel.hpp"
 #include "../../ecs/common/ecs/Model/ScoreModel.hpp"
@@ -14,6 +14,32 @@
 #include <bits/stdc++.h>
 
 std::function<void (Scene&)> onClickPlayButton = [](Scene& em) {
+    std::string ipAdress = "";
+    std::string portString = "";
+    uint16_t port = 0;
+    for (auto& entity : em.entities1) {
+        TextFieldComponent* textF = em.getComponent<TextFieldComponent>(entity.first);
+
+        if (textF) {
+            if (textF->defaultString == "Ip Server") {
+                ipAdress = textF->dataText;
+            } else if (textF->defaultString == "Port"){
+                portString = textF->dataText;
+            }
+        }
+    }
+    try {
+        port = static_cast<unsigned short>(std::stoi(portString));
+    } catch (std::invalid_argument e) {
+        std::cout << "Problème de conversion" << std::endl;
+        return; // Faire la logique de la mauvaise saisie
+    };
+    std::cout << ipAdress << " et " << port << std::endl;
+    if (!em.SceneManager->getClientNetworkSystem()) {
+        std::cout << "Je crée unn Client Network Systeme!\n";
+        em.SceneManager->initServerNetwork(ipAdress, port, false, 0.01667);
+    }
+    em.SceneManager->getClientNetworkSystem().get()->setIpPort(ipAdress, port);
     em.SceneManager->isNewScene = true;
     em.SceneManager->setCurrentScene("GAME");
 };
@@ -31,17 +57,14 @@ int main() {
             {"Exit", -1, -1, -1, -1, sf::Color::Blue, sf::Color(70, 70, 200), sf::Color::White, [](Scene& em) {}}
         };
 
-        MenuModel menu(scene, "power4/assets/menu_background.png", menuItems, font);
+        MenuModelNetwork menu(scene, "power4/assets/menu_background.png", menuItems, font);
     });
 
     SceneManager.managePos = false;
     // SceneManager.managePos = true; // 🟢 Manage Pos coté serveur (a opti)
     SceneManager.addScene("GAME", [](Scene& scene) {
         scene.isNetworked = true;
-        scene.serverAdress = "127.0.0.1";
-        scene.port = 8090;
-        // scene.addSystem<MovementSystem>(); //🟢 Manage Pos coté serveur (a opti)
-
+        // // scene.addSystem<MovementSystem>(); //🟢 Manage Pos coté serveur (a opti)
     });
     SceneManager.setCurrentScene("MENU");
     SceneManager.run();

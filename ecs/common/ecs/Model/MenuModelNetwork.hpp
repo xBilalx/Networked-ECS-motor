@@ -23,6 +23,7 @@ public:
         menuEntity = scene.createEntity();
         scene.addComponent<PositionComponent>(menuEntity, 0, 0);
         scene.addComponent<SpriteComponent>(menuEntity, backgroundTexture, true);
+        scene.addComponent<RenderComponent>(menuEntity, 0);
 
         // Récupération des dimensions de la fenêtre
         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
