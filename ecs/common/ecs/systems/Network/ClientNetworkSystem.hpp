@@ -113,12 +113,12 @@ public:
                         if (messageType == Serializer::MessageType::RENDER)
                         {
                             std::string pathImg = Serializer::deserializeString(packet.data);
-                            RenderComponent *render = em.getComponent<RenderComponent>(entityNbr);
-                            if (!render)
+                            SpriteComponent *sprite = em.getComponent<SpriteComponent>(entityNbr);
+                            if (!sprite)
                             {
-                                RenderComponent &renderComponent = em.addComponent<RenderComponent>(entityNbr, pathImg, true);
+                                SpriteComponent &spriteComponent = em.addComponent<SpriteComponent>(entityNbr, pathImg, true);
 
-                                sf::Vector2u textureSize = renderComponent.texture.getSize();
+                                sf::Vector2u textureSize = spriteComponent.texture.getSize();
                                 if (textureSize.x == 0 || textureSize.y == 0)
                                 {
                                     std::cerr << "Erreur: La texture n'a pas été chargée correctement !" << std::endl;
@@ -126,15 +126,15 @@ public:
                                 }
 
                                 float scaleFactor = 80.0f / static_cast<float>(textureSize.x);
-                                renderComponent.sprite.setScale(scaleFactor, scaleFactor);
-                                renderComponent.sprite.setOrigin(textureSize.x / 2.0f, textureSize.y / 2.0f);
+                                spriteComponent.sprite.setScale(scaleFactor, scaleFactor);
+                                spriteComponent.sprite.setOrigin(textureSize.x / 2.0f, textureSize.y / 2.0f);
                             }
                             else
                             {
-                                if (render->pathTexture != pathImg)
+                                if (sprite->pathTexture != pathImg)
                                 {
-                                    render->pathTexture = pathImg;
-                                    render->loadTecture();
+                                    sprite->pathTexture = pathImg;
+                                    sprite->loadTecture();
                                 }
                             }
                         }
@@ -177,9 +177,9 @@ public:
                         }
                         if (messageType == Serializer::MessageType::RENDERZ) {
                             char zIndex = Serializer::deserialize<char>(packet.data);
-                            RenderComponentTest* render = em.getComponent<RenderComponentTest>(entityNbr);
+                            RenderComponent* render = em.getComponent<RenderComponent>(entityNbr);
                             if (!render) {
-                                em.addComponent<RenderComponentTest>(entityNbr, zIndex);
+                                em.addComponent<RenderComponent>(entityNbr, zIndex);
                             } else {
 
                             }

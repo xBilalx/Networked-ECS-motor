@@ -67,8 +67,8 @@ class ServerNetworkSystem {
                         std::string buffer;
                         RectangleComponent* rect = em.getComponent<RectangleComponent>(it->first);
                         InputComponent* input = em.getComponent<InputComponent>(it->first);
-                        RenderComponent* sprite = em.getComponent<RenderComponent>(it->first);  // ⚠️ Sprite
-                        RenderComponentTest* render = em.getComponent<RenderComponentTest>(it->first);
+                        SpriteComponent* sprite = em.getComponent<SpriteComponent>(it->first);  // ⚠️ Sprite
+                        RenderComponent* render = em.getComponent<RenderComponent>(it->first);
                         PositionComponent* position = em.getComponent<PositionComponent>(it->first);
                         TokenComponent* token = em.getComponent<TokenComponent>(it->first);
                         CircleComponent* circle = em.getComponent<CircleComponent>(it->first);

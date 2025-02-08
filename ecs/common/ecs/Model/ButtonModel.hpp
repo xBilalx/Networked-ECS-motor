@@ -25,7 +25,7 @@ public:
         scene.addComponent<HoverComponent>(buttonEntity, color, hoverColor);
         scene.addComponent<OnClickComponent>(buttonEntity, action);
         scene.addComponent<OnClickToggleComponent>(buttonEntity);
-        scene.addComponent<RenderComponentTest>(buttonEntity, 1);
+        scene.addComponent<RenderComponent>(buttonEntity, 1);
     }
 
     std::size_t getEntity() const {

@@ -22,7 +22,7 @@ public:
         scene.addComponent<CircleComponent>(ballEntity, x, y, radius, sf::Color::White);
         scene.addComponent<CollisionComponent>(ballEntity, radius * 2, radius * 2);
         scene.addComponent<BallComponent>(ballEntity, speed, windowSize.x, windowSize.y); // Ajout des limites de l'écran
-        scene.addComponent<RenderComponentTest>(ballEntity, 1);
+        scene.addComponent<RenderComponent>(ballEntity, 1);
     }
 
     std::size_t getEntity() const {

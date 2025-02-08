@@ -50,7 +50,7 @@ int main() {
         while (startY < windowSize.y) {
             std::size_t dash = scene.createEntity();
             scene.addComponent<RectangleComponent>(dash, centerX, startY, 5, dashHeight, sf::Color::White);
-            scene.addComponent<RenderComponentTest>(dash, 1);
+            scene.addComponent<RenderComponent>(dash, 1);
             startY += dashHeight + spaceBetween;
         }
         std::size_t paddleLeft = scene.createEntity();

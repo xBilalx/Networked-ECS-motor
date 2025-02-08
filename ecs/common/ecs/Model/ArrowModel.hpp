@@ -19,27 +19,21 @@ public:
         float arrowY = gridOffsetY - cellSize + 10;
         arrowEntity = arrowEntity_;
         scene.addComponent<PositionComponent>(arrowEntity, arrowX, arrowY);
-        RenderComponent& renderComponent = scene.addComponent<RenderComponent>(arrowEntity, texturePath, true);
+        SpriteComponent& spriteComponent = scene.addComponent<SpriteComponent>(arrowEntity, texturePath, true);
         scene.addComponent<InputComponent>(arrowEntity);
         scene.addComponent<BounceComponent>(arrowEntity, 0.3f, 10.0f);
-        scene.addComponent<RenderComponentTest>(arrowEntity, 1);
+        scene.addComponent<RenderComponent>(arrowEntity, 1);
         scene.addComponent<ArrowComponent>(arrowEntity, initialColumn, cellSize, 7); // 7 colonnes
-        // ActionKeyBind& actionKeyBind = scene.addComponent<ActionKeyBind>(arrowEntity); // 7 colonnes
-        
 
-        // actionKeyBind.left = sf::Keyboard::Left;
-        // actionKeyBind.right= sf::Keyboard::Right;
-
-
-        sf::Vector2u textureSize = renderComponent.texture.getSize();
+        sf::Vector2u textureSize = spriteComponent.texture.getSize();
         if (textureSize.x == 0 || textureSize.y == 0) {
             std::cerr << "Erreur: La texture de la flèche n'a pas été chargée correctement !" << std::endl;
             return;
         }
 
         float scaleFactor = cellSize / static_cast<float>(textureSize.x);
-        renderComponent.sprite.setScale(scaleFactor, scaleFactor);
-        renderComponent.sprite.setOrigin(textureSize.x / 2.0f, textureSize.y / 2.0f);
+        spriteComponent.sprite.setScale(scaleFactor, scaleFactor);
+        spriteComponent.sprite.setOrigin(textureSize.x / 2.0f, textureSize.y / 2.0f);
     }
 
     std::size_t getEntity() const {
