@@ -44,7 +44,8 @@ public:
         ENTITY,     // CLIENT and Server
         WINDOW,
         INPUT,      // Client and Server
-        RENDER,     // Client and Server
+        RENDER,     // Client and Server // ⚠️C'est l'SPRITE ca à modifié
+        RENDERZ,
         POSITION,   // Server to Client
         NEXT,
         END,

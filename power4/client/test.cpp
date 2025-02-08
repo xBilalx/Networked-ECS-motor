@@ -1,8 +1,8 @@
-#include "../../../ecs/common/ecs/scene/sceneManager.hpp"
-#include "../../../ecs/common/ecs/Model/MenuModel.hpp"
-#include "../../../ecs/common/ecs/Model/GridModel.hpp"
-#include "../../../ecs/common/ecs/Model/ArrowModel.hpp"
-#include "../../../ecs/common/ecs/components/Player/PlayerComponent.hpp"
+#include "../../ecs/common/ecs/scene/sceneManager.hpp"
+#include "../../ecs/common/ecs/Model/MenuModel.hpp"
+#include "../../ecs/common/ecs/Model/GridModel.hpp"
+#include "../../ecs/common/ecs/Model/ArrowModel.hpp"
+#include "../../ecs/common/ecs/components/Player/PlayerComponent.hpp"
 #include <SFML/Graphics.hpp>
 #include <bits/stdc++.h>
 
@@ -27,7 +27,7 @@ int main() {
             {"Exit", -1, -1, -1, -1, sf::Color::Blue, sf::Color(70, 70, 200), sf::Color::White, [](Scene& em) {}}
         };
 
-        MenuModel menu(scene, "../../assets/menu_background.png", menuItems, font);
+        MenuModel menu(scene, "../assets/menu_background.png", menuItems, font);
     });
 
     SceneManager.addScene("GAME", [](Scene& scene) {

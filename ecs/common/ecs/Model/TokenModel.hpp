@@ -12,6 +12,7 @@ public:
         scene.addComponent<PositionComponent>(tokenEntity, x, y);
         RenderComponent& renderComponent = scene.addComponent<RenderComponent>(tokenEntity, texturePath, true);
         scene.addComponent<TokenComponent>(tokenEntity, playerId);
+        scene.addComponent<RenderComponentTest>(tokenEntity, 2);
 
         sf::Vector2u textureSize = renderComponent.texture.getSize();
         if (textureSize.x == 0 || textureSize.y == 0) {

@@ -25,6 +25,8 @@ public:
         scene.addComponent<TextComponent>(scorePlayer2, "0", font, 60, sf::Color::White);
         scene.addComponent<PositionComponent>(scorePlayer1, posX1, posY1);
         scene.addComponent<PositionComponent>(scorePlayer2, posX2, posY2);
+        scene.addComponent<RenderComponentTest>(scorePlayer1, 1);
+        scene.addComponent<RenderComponentTest>(scorePlayer2, 1);
     }
 
 private:

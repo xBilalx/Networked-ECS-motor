@@ -17,6 +17,8 @@ public:
         
         gridEntity = scene.createEntity();
         scene.addComponent<PositionComponent>(gridEntity, 0, 0);
+        scene.addComponent<RenderComponentTest>(gridEntity, 0);
+
         scene.addComponent<RenderComponent>(gridEntity, backgroundTexture, true);
 
         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
@@ -33,6 +35,7 @@ public:
                 float cellY = offsetY + row * cellSize;
                 std::size_t cellEntity = scene.createEntity();
                 scene.addComponent<PositionComponent>(cellEntity, cellX, cellY);
+                scene.addComponent<RenderComponentTest>(cellEntity, 1);
                 scene.addComponent<RectangleComponent>(cellEntity, cellX, cellY, cellSize - 5, cellSize - 5, sf::Color(200, 200, 200, 200));
                 gridCells.push_back(cellEntity);
             }

@@ -175,6 +175,15 @@ public:
                                 rect->color = color;
                             }
                         }
+                        if (messageType == Serializer::MessageType::RENDERZ) {
+                            char zIndex = Serializer::deserialize<char>(packet.data);
+                            RenderComponentTest* render = em.getComponent<RenderComponentTest>(entityNbr);
+                            if (!render) {
+                                em.addComponent<RenderComponentTest>(entityNbr, zIndex);
+                            } else {
+
+                            }
+                        }
                         if (messageType == Serializer::MessageType::CIRCLE) {
                             float x = Serializer::deserialize<float>(packet.data);
                             float y = Serializer::deserialize<float>(packet.data);

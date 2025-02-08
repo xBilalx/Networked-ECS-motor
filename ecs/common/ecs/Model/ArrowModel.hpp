@@ -22,6 +22,7 @@ public:
         RenderComponent& renderComponent = scene.addComponent<RenderComponent>(arrowEntity, texturePath, true);
         scene.addComponent<InputComponent>(arrowEntity);
         scene.addComponent<BounceComponent>(arrowEntity, 0.3f, 10.0f);
+        scene.addComponent<RenderComponentTest>(arrowEntity, 1);
         scene.addComponent<ArrowComponent>(arrowEntity, initialColumn, cellSize, 7); // 7 colonnes
         // ActionKeyBind& actionKeyBind = scene.addComponent<ActionKeyBind>(arrowEntity); // 7 colonnes
         

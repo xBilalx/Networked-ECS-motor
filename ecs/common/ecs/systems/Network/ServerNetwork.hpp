@@ -67,16 +67,20 @@ class ServerNetworkSystem {
                         std::string buffer;
                         RectangleComponent* rect = em.getComponent<RectangleComponent>(it->first);
                         InputComponent* input = em.getComponent<InputComponent>(it->first);
-                        RenderComponent* render = em.getComponent<RenderComponent>(it->first);
+                        RenderComponent* sprite = em.getComponent<RenderComponent>(it->first);  // ⚠️ Sprite
+                        RenderComponentTest* render = em.getComponent<RenderComponentTest>(it->first);
                         PositionComponent* position = em.getComponent<PositionComponent>(it->first);
                         TokenComponent* token = em.getComponent<TokenComponent>(it->first);
                         CircleComponent* circle = em.getComponent<CircleComponent>(it->first);
-                        // BindClientComponent *bindClient = em.getComponent<BindClientComponent>(it->first);
                         BindClientComponentTest *bindClientTest = em.getComponent<BindClientComponentTest>(it->first);
                         Serializer::serialize(buffer, Serializer::MessageType::ENTITY);
                         Serializer::serialize(buffer, (uint64_t)it->first);
 
 
+                        if (render) {
+                            Serializer::serialize(buffer, Serializer::MessageType::RENDERZ);
+                            Serializer::serialize(buffer, (char)render->zIndex);
+                        }
                         if (input && bindClientTest && currentBindId == bindClientTest->bindId) {
                             Serializer::serialize(buffer, Serializer::MessageType::INPUT);
                         }
@@ -90,9 +94,9 @@ class ServerNetworkSystem {
                             Serializer::serialize(buffer, (uint8_t)circle->circle.getFillColor().b);
                             Serializer::serialize(buffer, (uint8_t)circle->circle.getFillColor().a);
                         }
-                        if (render) {
+                        if (sprite) {
                             Serializer::serialize(buffer, Serializer::MessageType::RENDER);
-                            Serializer::serialize(buffer, (std::string) render->pathTexture);
+                            Serializer::serialize(buffer, (std::string) sprite->pathTexture);
                         }
                         if (rect) {
                             Serializer::serialize(buffer, Serializer::MessageType::RECTANGLE);

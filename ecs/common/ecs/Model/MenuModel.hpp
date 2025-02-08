@@ -19,7 +19,8 @@ public:
         menuEntity = scene.createEntity();
         scene.addComponent<PositionComponent>(menuEntity, 0, 0);
         scene.addComponent<RenderComponent>(menuEntity, backgroundTexture, true);
-        
+        scene.addComponent<RenderComponentTest>(menuEntity, 0);
+
         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
         sf::Vector2u windowSize = renderSystem.getWindow().getSize();
     

@@ -32,3 +32,9 @@ struct RenderComponent : public Component {
         sprite.setScale(scaleX, scaleY);
     }
 };
+
+struct RenderComponentTest : public Component {
+    char zIndex; // Char parce que ca va pas aller à plus de 256
+
+    RenderComponentTest(char zIndex = 0) : zIndex(zIndex) {}
+};
