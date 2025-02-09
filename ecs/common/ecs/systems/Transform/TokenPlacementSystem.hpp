@@ -66,11 +66,9 @@ public:
 
                     if (checkVictory(grid, row, arrow->currentColumn, currentPlayer))
                     {
-                        gameState->endGame(currentPlayer);
+                        gameState->endGame();
                         std::cout << "Jouer " << currentPlayer << " à gagné" << std::endl;
                         updatePlayerTurnText(scene, "🎉 Player " + std::to_string(currentPlayer) + " won!");
-                        // scene.SceneManager->setCurrentScene("FIN");
-                        // scene.SceneManager->isNewScene = true;
                         return;
                     }
 

@@ -17,17 +17,17 @@ class GameCheckSystem : public ISystem  {
                         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
                         sf::Vector2u windowSize = renderSystem.getWindow().getSize();
 
-                        if (winner == true) {
+                        if (winner) {
                             sf::Font font;
                             size_t text = scene.createEntity();
-                            scene.addComponent<PositionComponent>(text, windowSize.x/2, windowSize.y/2);
-                            scene.addComponent<TextComponent>(text, "The player blue has WIN", font, 50, sf::Color(70, 70, 200));
+                            scene.addComponent<PositionComponent>(text, windowSize.x/3.5, windowSize.y/2);
+                            scene.addComponent<TextComponent>(text, "The player YELLOW has WIN", font, 50, sf::Color(70, 70, 200));
                             scene.addComponent<RenderComponent>(text, 1);
                         } else {
                             sf::Font font;
                             size_t text = scene.createEntity();
-                            scene.addComponent<PositionComponent>(text, windowSize.x/2, windowSize.y/2);
-                            scene.addComponent<TextComponent>(text, "The player yellow has WIN", font, 50, sf::Color(70, 70, 200));
+                            scene.addComponent<PositionComponent>(text, windowSize.x/3.5, windowSize.y/2);
+                            scene.addComponent<TextComponent>(text, "The player BLUE has WIN", font, 50, sf::Color(70, 70, 200));
                             scene.addComponent<RenderComponent>(text, 1);
                         }
                     });

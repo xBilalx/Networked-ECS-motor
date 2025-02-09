@@ -27,7 +27,7 @@ struct GameStateComponent : public Component {
         currentPlayerEntity = (currentPlayerEntity == player1Entity) ? player2Entity : player1Entity;
     }
 
-    void endGame(std::size_t winner) {
+    void endGame() {
         gameOver = true;
         if (player1Entity == currentPlayerEntity) {
             winner = false;
