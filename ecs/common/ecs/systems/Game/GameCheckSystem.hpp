@@ -12,7 +12,8 @@ class GameCheckSystem : public ISystem  {
             if (gameState) {
                 if (gameState->gameOver) {
                     bool winner = gameState->winner;
-                    scene.SceneManager->addScene("END", [&winner](Scene& scene) {
+                    std::cout << winner << std::endl;
+                    scene.SceneManager->addScene("END", [winner](Scene& scene) {
                         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
                         sf::Vector2u windowSize = renderSystem.getWindow().getSize();
 

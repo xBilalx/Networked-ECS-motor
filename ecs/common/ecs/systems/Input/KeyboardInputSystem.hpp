@@ -51,7 +51,7 @@ private:
 
             if (input) {
                 sf::Keyboard::Key pressedKey = event.key.code;
-                std::cout << "[DEBUG] Touche pressée : " << pressedKey << std::endl;
+                // std::cout << "[DEBUG] Touche pressée : " << pressedKey << std::endl;
                 input->keysPressed[pressedKey] = true;
                 inputRelease = true;
             }
@@ -69,7 +69,7 @@ private:
 
             if (input) {
                 sf::Keyboard::Key releasedKey = event.key.code;
-                std::cout << "[DEBUG] Touche relâchée : " << releasedKey << std::endl;
+                // std::cout << "[DEBUG] Touche relâchée : " << releasedKey << std::endl;
                 input->keysReleased[releasedKey] = true;
                 input->keysPressed[releasedKey] = false;
 

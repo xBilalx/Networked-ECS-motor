@@ -118,7 +118,7 @@ public:
                     else
                     {
                         em.createEntityWithId(entityNbr);
-                        std::cout << "entité pas trouvé, entité crée du coup\n";
+                        // std::cout << "entité pas trouvé, entité crée du coup\n";
                     }
                     while (1)
                     {

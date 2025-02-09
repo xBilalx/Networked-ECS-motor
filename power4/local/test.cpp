@@ -3,6 +3,7 @@
 #include "../../ecs/common/ecs/Model/GridModel.hpp"
 #include "../../ecs/common/ecs/Model/ArrowModel.hpp"
 #include "../../ecs/common/ecs/components/Player/PlayerComponent.hpp"
+#include "../../ecs/common/ecs/systems/Game/GameCheckSystem.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <bits/stdc++.h>
@@ -31,7 +32,7 @@ int main() {
 
     SceneManager.addScene("GAME", [](Scene& scene) {
         float cellSize = 80.0f;
-        GridModel grid(scene, "power4/assets/menu_background.png", 6, 7, cellSize);
+        GridModel grid(scene, "", 6, 7, cellSize);
 
         std::size_t player1 = scene.createEntity();
 
@@ -47,7 +48,7 @@ int main() {
         actionKeyBind1.right= sf::Keyboard::D;
 
         scene.addComponent<GameStateComponent>(0, player1, "power4/assets/blue_bubble.png", player2, "power4/assets/yellow_bubble.png");
-
+        scene.addSystem<GameCheckSystem>();
         scene.addSystem<ArrowMovementSystem>();
         scene.addSystem<BounceSystem>();
         scene.addSystem<TokenPlacementSystem>();
