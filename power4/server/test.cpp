@@ -34,6 +34,7 @@
 int main() {
     sceneManager SceneManager(true, false);
     sf::Font font;
+    font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf");
     SceneManager.addScene("LOBBY", [&font](Scene& scene) {
         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
         sf::Vector2u windowSize = renderSystem.getWindow().getSize();
