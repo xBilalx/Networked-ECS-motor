@@ -111,11 +111,17 @@ class ServerNetworkSystem {
                         PositionComponent* position = em.getComponent<PositionComponent>(it->first);
                         TokenComponent* token = em.getComponent<TokenComponent>(it->first);
                         CircleComponent* circle = em.getComponent<CircleComponent>(it->first);
+                        GameStateComponent* gameState = em.getComponent<GameStateComponent>(it->first);
+
                         BindClientComponentTest *bindClientTest = em.getComponent<BindClientComponentTest>(it->first);
                         Serializer::serialize(buffer, Serializer::MessageType::ENTITY);
                         Serializer::serialize(buffer, (uint64_t)it->first);
 
-
+                        if (gameState) {
+                            Serializer::serialize(buffer, Serializer::MessageType::GAMESTATE);
+                            Serializer::serialize(buffer, (bool)gameState->gameOver);
+                            Serializer::serialize(buffer, (bool)gameState->winner);
+                        }
                         if (render) {
                             Serializer::serialize(buffer, Serializer::MessageType::RENDERZ);
                             Serializer::serialize(buffer, (char)render->zIndex);
@@ -183,7 +189,9 @@ class ServerNetworkSystem {
                     if (messageType == Serializer::MessageType::READY) {
                         std::cout << "🚀 Flag Ready receive !\n";
                         // Ce serait cool de faire des vérifs avant de mettre la valeur en READY
-                        ready = true;
+                        if (nbrOfClients >= 2) {
+                            ready = true;
+                        }
                     }
                     if (messageType == Serializer::MessageType::CONNECT) {
                         for (int currentBindId = 0; currentBindId < static_cast<int>(bindClients.size()); currentBindId++) {

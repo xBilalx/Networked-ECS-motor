@@ -3,6 +3,7 @@
 #include "../../ecs/common/ecs/Model/MenuModel.hpp"
 #include "../../ecs/common/ecs/Model/GridModel.hpp"
 #include "../../ecs/common/ecs/systems/Network/LobbySystem.hpp"
+#include "../../ecs/common/ecs/systems/Game/GameCheckSystem.hpp"
 #include "../../ecs/common/ecs/Model/ArrowModel.hpp"
 #include "../../ecs/common/ecs/components/Id/IdComponent.hpp"
 
@@ -89,6 +90,7 @@ int main() {
     SceneManager.addScene("GAME", [](Scene& scene) {
         scene.isNetworked = true; // autorise la scene à une communication avec le serveur
         scene.SceneManager->getClientNetworkSystem().get()->setSyncEntities(true); // autorise à sync les entités avec le serveur, false de base
+        scene.addSystem<GameCheckSystem>();
     });
 
     SceneManager.setCurrentScene("MENU");

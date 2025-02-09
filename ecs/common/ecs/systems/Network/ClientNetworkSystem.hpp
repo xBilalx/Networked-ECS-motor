@@ -153,6 +153,18 @@ public:
                                 }
                             }
                         }
+                        if (messageType == Serializer::MessageType::GAMESTATE) {
+                            bool gameOver = Serializer::deserialize<bool>(packet.data);
+                            bool winner = Serializer::deserialize<bool>(packet.data);
+                            GameStateComponent *gameState = em.getComponent<GameStateComponent>(entityNbr);
+                            if (!gameState) {
+                                em.addComponent<GameStateComponent>(entityNbr, gameOver, winner);
+                            } else {
+                                gameState->winner = winner;
+                                gameState->gameOver = gameOver;
+                                std::cout << gameOver << std::endl;
+                            }
+                        }
                         if (messageType == Serializer::MessageType::TOKEN)
                         {
                             TokenComponent *token = em.getComponent<TokenComponent>(entityNbr);

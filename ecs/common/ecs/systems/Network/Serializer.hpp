@@ -60,5 +60,6 @@ public:
         RECTANGLE,
         TOKEN,
         CIRCLE,
+        GAMESTATE,
     };
 };
