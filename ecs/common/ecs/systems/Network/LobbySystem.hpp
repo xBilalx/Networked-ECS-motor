@@ -35,3 +35,20 @@ public:
     std::string sceneName;
     size_t textEntity;
 };
+
+class LobbySystemServer : public ISystem {
+    public:
+    LobbySystemServer(std::string sceneName) : sceneName(sceneName) {};
+        void update(Scene& scene, float dt) {
+            ServerNetworkSystem * clientNetwork = scene.SceneManager->getServerNetworkSystem().get();
+
+            if (clientNetwork) {
+                if (clientNetwork->run) {
+                    scene.SceneManager->isNewScene = true;
+                    scene.SceneManager->setCurrentScene(sceneName);
+                }
+            }
+        }
+        std::string sceneName;
+        size_t textEntity;
+};
