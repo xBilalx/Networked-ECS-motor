@@ -57,6 +57,10 @@ public:
         return clientNetworkSystemTest;
     }
 
+    std::unique_ptr<ServerNetworkSystem>& getServerNetworkSystem() {
+        return serverNetworkSystem;
+    }
+
     void setCurrentScene(std::string scene)
     {
         currentScene = scene;
@@ -181,7 +185,6 @@ private:
         MovementSystem movementSystem;
         sf::Clock clock;
         sf::RenderWindow &win = renderSystem.getWindow();
-        bool chechk = false;
         bool isNetworked = em.isNetworked;
         KeyboardInputSystem keyBoardInputSystem;
 
@@ -199,15 +202,6 @@ private:
             if (debug)
             {
                 std::cout << "Time for loop -> " << dt << "s\n";
-            }
-            if (isNetworked)
-            {
-                if (!chechk)
-                {
-                    std::cout << "MIOAw\n";
-                    clientNetworkSystemTest.get()->test(); // Envoie un paquet CONNECT mais a upgrade
-                    chechk = true;
-                }
             }
             timeSystem.update(em, dt);
             keyBoardInputSystem.resetKeyRelease(win, em);

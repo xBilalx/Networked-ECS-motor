@@ -26,4 +26,7 @@ struct TextComponent : public Component {
             std::cerr << "❌ ERREUR: Police invalide dans TextComponent !" << std::endl;
         }
     }
+    void updateText() {
+        text.setString(content);
+    }
 };

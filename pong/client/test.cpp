@@ -1,5 +1,9 @@
 #include "../../ecs/common/ecs/scene/sceneManager.hpp"
 #include "../../ecs/common/ecs/Model/MenuModelNetwork.hpp"
+#include "../../ecs/common/ecs/Model/MenuModel.hpp"
+#include "../../ecs/common/ecs/components/Id/IdComponent.hpp"
+#include "../../ecs/common/ecs/systems/Network/LobbySystem.hpp"
+
 #include "../../ecs/common/ecs/Model/GridModel.hpp"
 #include "../../ecs/common/ecs/Model/ArrowModel.hpp"
 #include "../../ecs/common/ecs/Model/ScoreModel.hpp"
@@ -12,6 +16,7 @@
 
 
 #include <bits/stdc++.h>
+
 
 std::function<void (Scene&)> onClickPlayButton = [](Scene& em) {
     std::string ipAdress = "";
@@ -41,8 +46,16 @@ std::function<void (Scene&)> onClickPlayButton = [](Scene& em) {
     }
     em.SceneManager->getClientNetworkSystem().get()->setIpPort(ipAdress, port);
     em.SceneManager->isNewScene = true;
-    em.SceneManager->setCurrentScene("GAME");
+    em.SceneManager->setCurrentScene("LOBBY");
 };
+
+std::function<void (Scene&)> onClickReadyButton = [](Scene& em) {
+    em.SceneManager->getClientNetworkSystem().get()->sendReadyToServer();
+    // Faire un systeme Lobby
+    // em.SceneManager->isNewScene = true;
+    // em.SceneManager->setCurrentScene("GAME");
+};
+
 
 int main() {
     sceneManager SceneManager(false, false);
@@ -60,11 +73,30 @@ int main() {
         MenuModelNetwork menu(scene, "power4/assets/menu_background.png", menuItems, font);
     });
 
-    SceneManager.managePos = false;
-    // SceneManager.managePos = true; // 🟢 Manage Pos coté serveur (a opti)
-    SceneManager.addScene("GAME", [](Scene& scene) {
+    SceneManager.addScene("LOBBY", [&font](Scene& scene) {
+        scene.SceneManager->getClientNetworkSystem().get()->sendConnectToServer();
         scene.isNetworked = true;
-        // // scene.addSystem<MovementSystem>(); //🟢 Manage Pos coté serveur (a opti)
+        RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
+        sf::Vector2u windowSize = renderSystem.getWindow().getSize();
+    
+        std::vector<std::tuple<std::string, float, float, float, float, sf::Color, sf::Color, sf::Color, std::function<void (Scene&)>>> menuItems = {
+            {"LAUNCH GAME", -1, -1, -1, -1,sf::Color::Blue, sf::Color(70, 70, 200), sf::Color::White, onClickReadyButton}
+        };
+        size_t text = scene.createEntity();
+        scene.addComponent<PositionComponent>(text, 100, 100);
+        scene.addComponent<TextComponent>(text, "0/2 joueurs en attente", font, 24, sf::Color(70, 70, 200));
+        scene.addComponent<IdComponent>(text, "nbrOfClients");
+        scene.addComponent<RenderComponent>(text, 1);
+        MenuModel menu(scene, "power4/assets/menu_background.png", menuItems, font);
+        scene.addSystem<LobbySystem>("GAME");
+
+    });
+
+    SceneManager.managePos = false;
+    SceneManager.addScene("GAME", [](Scene& scene) {
+        scene.isNetworked = true; // autorise la scene à une communication avec le serveur
+        scene.SceneManager->getClientNetworkSystem().get()->setSyncEntities(true); // autorise à sync les entités avec le serveur, false de base
+    
     });
     SceneManager.setCurrentScene("MENU");
     SceneManager.run();
