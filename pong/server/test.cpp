@@ -34,9 +34,17 @@
 
 int main() {
     sceneManager SceneManager(true, false);
-
-    SceneManager.addScene("LOBBY", [](Scene& scene) {
+    sf::Font font;
+    font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf");
+    SceneManager.addScene("LOBBY", [&font](Scene& scene) {
+        RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
+        sf::Vector2u windowSize = renderSystem.getWindow().getSize();
         scene.addSystem<LobbySystemServer>("PongScene");
+        size_t text = scene.createEntity();
+        scene.addComponent<PositionComponent>(text, windowSize.x/2.5, windowSize.y / 2);
+        scene.addComponent<TextComponent>(text, "Visualisation cote Serveur", font, 24, sf::Color(70, 70, 200));
+        scene.addComponent<IdComponent>(text, "nbrOfClients");
+        scene.addComponent<RenderComponent>(text, 1);
     });
 
     SceneManager.addScene("PongScene", [](Scene& scene) {
