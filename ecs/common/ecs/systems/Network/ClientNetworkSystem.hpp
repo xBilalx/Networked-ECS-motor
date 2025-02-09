@@ -71,10 +71,16 @@ public:
         }
     }
 
+    void sendReadyToServer() {
+        std::string buffer;
+        Serializer::serialize(buffer, Serializer::MessageType::READY);
+        Serializer::serialize(buffer, Serializer::MessageType::END);
+        networkManager.sendTo(buffer, serverIp, serverPort);
+    }
+
     // Process of deserialization and Creation/Modification of entity/component
     void dataFromServer(Scene &em)
     {
-
         std::vector<Packet> packets = networkManager.receiveMessages();
         for (Packet packet : packets)
         {
@@ -84,6 +90,13 @@ public:
                 messageType = static_cast<Serializer::MessageType>(Serializer::deserialize<uint8_t>(packet.data));
                 if (messageType == Serializer::MessageType::END)
                     break;
+                if (messageType == Serializer::MessageType::WAIT) {
+                    nbrOfClient = Serializer::deserialize<uint8_t>(packet.data);
+                    std::cout << "Nombre de iencli : " << (int)nbrOfClient << std::endl;
+                }
+                if (messageType == Serializer::MessageType::RUN) {
+                    run = true;
+                }
                 if (messageType == Serializer::MessageType::CONNECTED)
                 {
                     std::cout << "Connected to server successful" << std::endl;
@@ -95,6 +108,9 @@ public:
                 }
                 if (messageType == Serializer::MessageType::ENTITY)
                 {
+                    if (!syncEntities) {
+                        break;
+                    }
                     uint64_t entityNbr = static_cast<uint64_t>(Serializer::deserialize<uint64_t>(packet.data));
                     if (em.checkIfEntityExist(entityNbr))
                     {
@@ -236,7 +252,7 @@ public:
             free((void *)packet.ptr);
         }
     }
-    void test()
+    void sendConnectToServer()
     {
         std::string buffer;
         Serializer::serialize(buffer, Serializer::MessageType::CONNECT);
@@ -253,6 +269,18 @@ public:
         coolDown = cooldown_;
     }
 
+    void setRun(bool run_) {
+        run = run_;
+    }
+    void setSyncEntities(bool syncEntities_) {
+        syncEntities = syncEntities_;
+    }
+    uint8_t getNbrOfClient() {
+        return nbrOfClient;
+    }
+    bool getRun() {
+        return run;
+    }
 private:
     std::string serverIp;
     uint16_t serverPort;
@@ -263,4 +291,11 @@ private:
     float currentTimeSend;
 
     bool managePos = false;
+
+    bool connected = true; // Pas encore implémenté, Valeur qui défini si le client est actuellement connecté à un serveur.
+
+    // Information / STATE Network
+    bool syncEntities = false;
+    bool run = false;
+    uint8_t nbrOfClient = 0;
 };

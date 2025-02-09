@@ -4,6 +4,7 @@
 #include "../../ecs/common/ecs/Model/ArrowModel.hpp"
 #include "../../ecs/common/ecs/Model/ScoreModel.hpp"
 #include "../../ecs/common/ecs/Model/BallModel.hpp"
+#include "../../ecs/common/ecs/systems/Network/LobbySystem.hpp"
 #include "../../ecs/common/ecs/Model/PaddleModel.hpp"
 #include "../../ecs/common/ecs/components/Input/InputComponent.hpp"
 #include "../../ecs/common/ecs/components/Player/PlayerComponent.hpp"
@@ -33,6 +34,10 @@
 
 int main() {
     sceneManager SceneManager(true, false);
+
+    SceneManager.addScene("LOBBY", [](Scene& scene) {
+        scene.addSystem<LobbySystemServer>("PongScene");
+    });
 
     SceneManager.addScene("PongScene", [](Scene& scene) {
         RenderSystem& renderSystem = scene.SceneManager->getRenderSystem();
@@ -80,7 +85,7 @@ int main() {
         scene.addSystem<BallMovementSystem>();
     });
 
-    SceneManager.setCurrentScene("PongScene");
+    SceneManager.setCurrentScene("LOBBY");
     SceneManager.setServerNetwork("0.0.0.0", 8090, 2, 0.0083);
     SceneManager.run();
 }

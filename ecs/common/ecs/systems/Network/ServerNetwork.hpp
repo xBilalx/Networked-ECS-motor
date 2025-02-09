@@ -50,7 +50,47 @@ class ServerNetworkSystem {
             }
         }
 
+        void lobbyToClient(Scene& em, float dt) {
+            if (coolDown != 0) {
+                currentTime += dt;
+                if (currentTime >= 1) {
+                    currentTime = 0;
+                } else {
+                    return;
+                }
+            }
+            if (ready) {
+                for (std::unique_ptr<BindClientsTest>& bindClient : bindClients) {
+                    if (bindClient->connected) {
+                        for (int i = 0; i < 10; i++) { // On envoie 10x on sait jamais !
+                            std::string buffer;
+                            Serializer::serialize(buffer, Serializer::MessageType::RUN);
+                            Serializer::serialize(buffer, Serializer::MessageType::END);
+                            networkManager.sendTo(buffer, bindClient->ipClient, bindClient->portClient);
+                        }
+                    }
+                }
+                std::cout << "RUN envoyé\n";
+                run = true;
+                return;
+            }
+            for (std::unique_ptr<BindClientsTest>& bindClient : bindClients) {
+                if (bindClient->connected) {
+                    std::string buffer;
+                    Serializer::serialize(buffer, Serializer::MessageType::WAIT);
+                    Serializer::serialize(buffer, (uint8_t) nbrOfClients);
+                    Serializer::serialize(buffer, Serializer::MessageType::END);
+                    networkManager.sendTo(buffer, bindClient->ipClient, bindClient->portClient);
+                }
+            }
+        }
+
         void dataToClients(Scene& em, float dt) {
+            if (!run) {
+                lobbyToClient(em, dt);
+                return;
+            }
+
             if (coolDown != 0) {
                 currentTime += dt;
                 if (currentTime >= coolDown) {
@@ -59,7 +99,6 @@ class ServerNetworkSystem {
                     return;
                 }
             }
-            
             for (int currentBindId = 0; currentBindId < static_cast<int>(bindClients.size()); currentBindId++) {
                 BindClientsTest* cli = bindClients[currentBindId].get();
                 if (cli->connected) {
@@ -141,6 +180,11 @@ class ServerNetworkSystem {
                     messageType = static_cast<Serializer::MessageType>(Serializer::deserialize<uint8_t>(packet.data));
                     if (messageType == Serializer::MessageType::END)
                         break;
+                    if (messageType == Serializer::MessageType::READY) {
+                        std::cout << "🚀 Flag Ready receive !\n";
+                        // Ce serait cool de faire des vérifs avant de mettre la valeur en READY
+                        ready = true;
+                    }
                     if (messageType == Serializer::MessageType::CONNECT) {
                         for (int currentBindId = 0; currentBindId < static_cast<int>(bindClients.size()); currentBindId++) {
                             BindClientsTest* cli = bindClients[currentBindId].get();
@@ -148,6 +192,7 @@ class ServerNetworkSystem {
                                 cli->ipClient = packet.senderIp;
                                 cli->portClient = packet.senderPort;
                                 cli->connected = true;
+                                nbrOfClients++;
                                 std::cout << "Connected to BIND Client to Server OK " << std::endl;
                                 std::string buffer;
                                 Serializer::serialize(buffer, Serializer::MessageType::CONNECTED);
@@ -184,11 +229,7 @@ class ServerNetworkSystem {
                                 InputComponent* input = em.getComponent<InputComponent>(entityNbr);
                                 if (input) {
                                     input->deserialize(packet.data);
-                                    // if (input->isKeyReleased(sf::Keyboard::Right)) {
-                                    //     std::cout << "Right Key released by" << entityNbr << std::endl;
-                                    // }
                                 }
-
                             }
                         }
                     }
@@ -205,6 +246,9 @@ class ServerNetworkSystem {
 
         int maxClient;
         float coolDown;
-        float currentTime;
-        float currentTimeReceiv;
+        float currentTime = 0;
+
+        uint8_t nbrOfClients = 0;
+        bool run = false; // Les données entités peuvent transité ?
+        bool ready = false; // Flag Ready recu
 };

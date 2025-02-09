@@ -3,6 +3,7 @@
 #include "../../ecs/common/ecs/Model/GridModel.hpp"
 #include "../../ecs/common/ecs/Model/ArrowModel.hpp"
 #include "../../ecs/common/ecs/components/Player/PlayerComponent.hpp"
+#include "../../ecs/common/ecs/systems/Network/LobbySystem.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <bits/stdc++.h>
@@ -32,8 +33,11 @@
 
 int main() {
     sceneManager SceneManager(true, false);
-
+    SceneManager.addScene("LOBBY", [](Scene& scene) {
+        scene.addSystem<LobbySystemServer>("GAME");
+    });
     SceneManager.addScene("GAME", [](Scene& scene) {
+        
         float cellSize = 80.0f;
         GridModel grid(scene, "power4/assets/menu_background.png", 6, 7, cellSize);
 
@@ -62,7 +66,7 @@ int main() {
     });
 
 
-    SceneManager.setCurrentScene("GAME");
+    SceneManager.setCurrentScene("LOBBY");
     SceneManager.setServerNetwork("0.0.0.0", 8090, 2, 0.0083);
     SceneManager.run();
 }

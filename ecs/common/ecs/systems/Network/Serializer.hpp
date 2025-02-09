@@ -38,15 +38,22 @@ public:
 
     enum class MessageType : uint8_t {
         NOTHING,
+        // 🌐 Status Network
         CONNECT,    // Client to Server
-        CONNECTED,  // Server to Client
+        CONNECTED,  // Server to Clients
         ERROR,      // Client and Server
+        STATE,      // Server To Clients
+        WAIT,       // Server To Clients
+        RUN,        // Server To Clients
+        READY,      // Client To server
+
+        // 🦄 Entity Component
         ENTITY,     // CLIENT and Server
         WINDOW,
         INPUT,      // Client and Server
         RENDER,     // Client and Server // ⚠️C'est l'SPRITE ca à modifié
         RENDERZ,
-        POSITION,   // Server to Client
+        POSITION,
         NEXT,
         END,
         CLEAR,
