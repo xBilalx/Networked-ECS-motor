@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+*.vscode
+build/
+pong_local
+pong_client
+pong_server
+power4_local
+power4_client
+power4_server
