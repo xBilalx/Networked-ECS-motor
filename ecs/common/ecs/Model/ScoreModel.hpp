@@ -11,7 +11,7 @@ class ScoreModel {
 public:
     ScoreModel(Scene& scene, sf::Font& font, float posX1, float posY1, float posX2, float posY2) {
         if (!font.getInfo().family.empty()) {
-            std::cerr << "✅ Police chargée avec succès pour le ScoreModel !\n";
+            // std::cerr << "✅ Police chargée avec succès pour le ScoreModel !\n";
         } else {
             std::cerr << "❌ ERREUR: Police invalide dans ScoreModel !\n";
             return;

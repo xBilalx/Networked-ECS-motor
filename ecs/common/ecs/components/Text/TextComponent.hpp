@@ -22,8 +22,7 @@ struct TextComponent : public Component {
             text.setString(content);
             text.setCharacterSize(size);
             text.setFillColor(color);
-            std::cerr << "✅ TextComponent initialisé avec succès !\n";
-
+            // std::cerr << "✅ TextComponent initialisé avec succès !\n";
     }
     void updateText() {
         text.setString(content);

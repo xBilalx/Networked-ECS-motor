@@ -92,7 +92,7 @@ public:
                     break;
                 if (messageType == Serializer::MessageType::WAIT) {
                     nbrOfClient = Serializer::deserialize<uint8_t>(packet.data);
-                    std::cout << "Nombre de iencli : " << (int)nbrOfClient << std::endl;
+                    // std::cout << "Nombre de iencli : " << (int)nbrOfClient << std::endl;
                 }
                 if (messageType == Serializer::MessageType::RUN) {
                     run = true;
